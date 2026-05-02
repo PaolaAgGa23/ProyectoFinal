@@ -1,647 +1,345 @@
-#include <iostream>
-#include <cmath>
 #include <string>
+#include <iostream>
+#include <vector>
+
 
 #include <GL/glew.h>
+
+
 #include <GLFW/glfw3.h>
-#include "stb_image.h"
+
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>  
+#include <glm/gtc/type_ptr.hpp>          
 
-#include "SOIL2/SOIL2.h"
-#include "Shader.h"
-#include "Camera.h"
-#include "Model.h"
 
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void MouseCallback(GLFWwindow* window, double xPos, double yPos);
-void DoMovement();
-void Animation();
+#include "Shader.h"   
+#include "Camera.h"   
+#include "Model.h"    
+#include "stb_image.h" 
+
 
 const GLuint WIDTH = 1200, HEIGHT = 800;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
-Camera camera(glm::vec3(0.0f, 1.7f, 0.0f));
+
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void MouseCallback(GLFWwindow* window, double xPos, double yPos);
+void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+void DoMovement();
+
+
+void DrawBox(GLuint VAO, Shader& shader, GLint modelLoc, GLint colorLoc,
+    glm::vec3 pos, glm::vec3 scale, glm::vec3 color);
+
+void DrawBoxRotatedX(GLuint VAO, Shader& shader, GLint modelLoc, GLint colorLoc,
+    glm::vec3 pos, glm::vec3 scale, glm::vec3 color, float angle);
+
+
+Camera camera(glm::vec3(0.0f, 3.0f, 12.0f));
+
 GLfloat lastX = WIDTH / 2.0f;
 GLfloat lastY = HEIGHT / 2.0f;
 bool keys[1024];
 bool firstMouse = true;
-bool active = false;
 
-glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
-
-glm::vec3 pointLightPositions[] = {
-    glm::vec3(0.0f, 4.8f,  0.0f),
-    glm::vec3(3.0f, 4.8f,  3.0f),
-    glm::vec3(-3.0f, 4.8f, -3.0f),
-    glm::vec3(3.0f, 4.8f, -3.0f),
-};
-
-glm::vec3 Light1 = glm::vec3(0);
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-float vertices[] = {
-    -0.5f,-0.5f,-0.5f,  0.0f, 0.0f,-1.0f,
-     0.5f,-0.5f,-0.5f,  0.0f, 0.0f,-1.0f,
-     0.5f, 0.5f,-0.5f,  0.0f, 0.0f,-1.0f,
-     0.5f, 0.5f,-0.5f,  0.0f, 0.0f,-1.0f,
-    -0.5f, 0.5f,-0.5f,  0.0f, 0.0f,-1.0f,
-    -0.5f,-0.5f,-0.5f,  0.0f, 0.0f,-1.0f,
-    -0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-     0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-     0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-     0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-    -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-    -0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-    -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-    -0.5f, 0.5f,-0.5f, -1.0f, 0.0f, 0.0f,
-    -0.5f,-0.5f,-0.5f, -1.0f, 0.0f, 0.0f,
-    -0.5f,-0.5f,-0.5f, -1.0f, 0.0f, 0.0f,
-    -0.5f,-0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-    -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
-     0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-     0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-     0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-     0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-     0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-     0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-    -0.5f,-0.5f,-0.5f,  0.0f,-1.0f, 0.0f,
-     0.5f,-0.5f,-0.5f,  0.0f,-1.0f, 0.0f,
-     0.5f,-0.5f, 0.5f,  0.0f,-1.0f, 0.0f,
-     0.5f,-0.5f, 0.5f,  0.0f,-1.0f, 0.0f,
-    -0.5f,-0.5f, 0.5f,  0.0f,-1.0f, 0.0f,
-    -0.5f,-0.5f,-0.5f,  0.0f,-1.0f, 0.0f,
-    -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
-     0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
-     0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
-     0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
-    -0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
-    -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
-};
 
 int main()
 {
+    // --- Inicializacion de GLFW ---
     glfwInit();
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Sala - Proyecto Final", nullptr, nullptr);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); // Ventana de tamano fijo
 
-    if (nullptr == window)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
+    // Crear la ventana de OpenGL
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Lobby Universitario - OpenGL", nullptr, nullptr);
+    if (!window) {
+        std::cout << "Error: no se pudo crear la ventana GLFW" << std::endl;
         glfwTerminate();
         return EXIT_FAILURE;
     }
 
     glfwMakeContextCurrent(window);
     glfwGetFramebufferSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
-    glfwSetKeyCallback(window, KeyCallback);
-    glfwSetCursorPosCallback(window, MouseCallback);
+
+    // Registrar callbacks 
+    glfwSetKeyCallback(window, KeyCallback);       // Teclado
+    glfwSetCursorPosCallback(window, MouseCallback); // Movimiento del mouse
+    glfwSetScrollCallback(window, ScrollCallback);   // Rueda del mouse 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    // Inicializacion de GLEW
     glewExperimental = GL_TRUE;
-    if (GLEW_OK != glewInit())
-    {
-        std::cout << "Failed to initialize GLEW" << std::endl;
+    if (glewInit() != GLEW_OK) {
+        std::cout << "Error: no se pudo inicializar GLEW" << std::endl;
         return EXIT_FAILURE;
     }
 
+
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    Shader lightingShader("Shader/lighting.vs", "Shader/lighting.frag");
-    Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
 
+    glEnable(GL_DEPTH_TEST);
+
+
+    Shader shaderColor("Shader/core.vs", "Shader/core.frag");
+
+
+    Shader shaderModel("Shader/modelLoading.vs", "Shader/modelLoading.frag");
+
+
+    Model person((char*)"Models/person.obj");
+
+
+    float vertices[] = {
+        // Cara frontal (Z+)
+        -0.5f,-0.5f, 0.5f,   0.5f,-0.5f, 0.5f,   0.5f, 0.5f, 0.5f,
+         0.5f, 0.5f, 0.5f,  -0.5f, 0.5f, 0.5f,  -0.5f,-0.5f, 0.5f,
+         // Cara trasera (Z-)
+         -0.5f,-0.5f,-0.5f,   0.5f,-0.5f,-0.5f,   0.5f, 0.5f,-0.5f,
+          0.5f, 0.5f,-0.5f,  -0.5f, 0.5f,-0.5f,  -0.5f,-0.5f,-0.5f,
+          // Cara derecha (X+)
+           0.5f,-0.5f, 0.5f,   0.5f,-0.5f,-0.5f,   0.5f, 0.5f,-0.5f,
+           0.5f, 0.5f,-0.5f,   0.5f, 0.5f, 0.5f,   0.5f,-0.5f, 0.5f,
+           // Cara izquierda (X-)
+           -0.5f, 0.5f, 0.5f,  -0.5f, 0.5f,-0.5f,  -0.5f,-0.5f,-0.5f,
+           -0.5f,-0.5f,-0.5f,  -0.5f,-0.5f, 0.5f,  -0.5f, 0.5f, 0.5f,
+           // Cara inferior (Y-)
+           -0.5f,-0.5f,-0.5f,   0.5f,-0.5f,-0.5f,   0.5f,-0.5f, 0.5f,
+            0.5f,-0.5f, 0.5f,  -0.5f,-0.5f, 0.5f,  -0.5f,-0.5f,-0.5f,
+            // Cara superior (Y+)
+            -0.5f, 0.5f,-0.5f,   0.5f, 0.5f,-0.5f,   0.5f, 0.5f, 0.5f,
+             0.5f, 0.5f, 0.5f,  -0.5f, 0.5f, 0.5f,  -0.5f, 0.5f,-0.5f,
+    };
+
+    // Crear y configurar el VAO y VBO del cubo
     GLuint VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glGenVertexArrays(1, &VAO); // Genera 1 VAO 
+    glGenBuffers(1, &VBO);      // Genera 1 VBO 
+
+    glBindVertexArray(VAO);     // Activar el VAO para configurarlo
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);                                          // Activar VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);  // Subir datos a GPU
+
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
-    lightingShader.Use();
-    glUniform1i(glGetUniformLocation(lightingShader.Program, "material.diffuse"), 0);
-    glUniform1i(glGetUniformLocation(lightingShader.Program, "material.specular"), 1);
+    glBindVertexArray(0); // Desactivar VAO
 
-    GLuint texMorado, texLila, texPiso, texBlanco, texCafe, texVidrio, texSpecular;
 
-    GLubyte dataMorado[] = { 102,  51, 153 };
-    GLubyte dataLila[] = { 180, 140, 210 };
-    GLubyte dataPiso[] = { 160, 120,  80 };
-    GLubyte dataBlanco[] = { 245, 245, 245 };
-    GLubyte dataCafe[] = { 101,  55,  20 };
-    GLubyte dataVidrio[] = { 200, 220, 240 };
-    GLubyte dataSpec[] = { 30,  30,  30 };
+    glm::mat4 projection = glm::perspective(
+        glm::radians(60.0f),
+        (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
+        0.1f, 200.0f);
 
-    glGenTextures(1, &texMorado);
-    glBindTexture(GL_TEXTURE_2D, texMorado);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, dataMorado);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glGenTextures(1, &texLila);
-    glBindTexture(GL_TEXTURE_2D, texLila);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, dataLila);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glGenTextures(1, &texPiso);
-    glBindTexture(GL_TEXTURE_2D, texPiso);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, dataPiso);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glGenTextures(1, &texBlanco);
-    glBindTexture(GL_TEXTURE_2D, texBlanco);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, dataBlanco);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glGenTextures(1, &texCafe);
-    glBindTexture(GL_TEXTURE_2D, texCafe);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, dataCafe);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glGenTextures(1, &texVidrio);
-    glBindTexture(GL_TEXTURE_2D, texVidrio);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, dataVidrio);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glGenTextures(1, &texSpecular);
-    glBindTexture(GL_TEXTURE_2D, texSpecular);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, dataSpec);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glm::mat4 projection = glm::perspective(camera.GetZoom(), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 0.1f, 200.0f);
 
     while (!glfwWindowShouldClose(window))
     {
+
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         glfwPollEvents();
         DoMovement();
-        Animation();
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+        glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
 
-        lightingShader.Use();
-
-        glUniform1i(glGetUniformLocation(lightingShader.Program, "diffuse"), 0);
-
-        GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
-        glUniform3f(viewPosLoc, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.direction"), -0.2f, -1.0f, -0.3f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.ambient"), 0.3f, 0.3f, 0.3f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.diffuse"), 0.5f, 0.5f, 0.5f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.specular"), 0.1f, 0.1f, 0.1f);
-
-        glm::vec3 lightColor;
-        lightColor.x = abs(sin(glfwGetTime() * Light1.x));
-        lightColor.y = abs(sin(glfwGetTime() * Light1.y));
-        lightColor.z = sin(glfwGetTime() * Light1.z);
-
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].ambient"), 0.4f, 0.4f, 0.4f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].diffuse"), 0.8f, 0.8f, 0.8f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].specular"), 0.2f, 0.2f, 0.2f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].constant"), 1.0f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].linear"), 0.022f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].quadratic"), 0.0019f);
-
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].ambient"), 0.4f, 0.4f, 0.4f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].diffuse"), 0.8f, 0.8f, 0.8f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].specular"), 0.2f, 0.2f, 0.2f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].constant"), 1.0f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].linear"), 0.022f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].quadratic"), 0.0019f);
-
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].ambient"), 0.4f, 0.4f, 0.4f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].diffuse"), 0.8f, 0.8f, 0.8f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].specular"), 0.2f, 0.2f, 0.2f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[2].constant"), 1.0f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[2].linear"), 0.022f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[2].quadratic"), 0.0019f);
-
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].ambient"), 0.4f, 0.4f, 0.4f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].diffuse"), 0.8f, 0.8f, 0.8f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].specular"), 0.2f, 0.2f, 0.2f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[3].constant"), 1.0f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[3].linear"), 0.022f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[3].quadratic"), 0.0019f);
-
-        float spotDiff = active ? 0.9f : 0.0f;
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.position"), camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.direction"), camera.GetFront().x, camera.GetFront().y, camera.GetFront().z);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.diffuse"), spotDiff, spotDiff, spotDiff);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.specular"), 0.5f, 0.5f, 0.5f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.constant"), 1.0f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.linear"), 0.045f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.quadratic"), 0.0075f);
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.cutOff"), glm::cos(glm::radians(12.0f)));
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.outerCutOff"), glm::cos(glm::radians(18.0f)));
-
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 16.0f);
-        glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
-
+        // Obtener matriz de vista desde la camara (donde esta mirando)
         glm::mat4 view = camera.GetViewMatrix();
-        GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
-        GLint viewLoc = glGetUniformLocation(lightingShader.Program, "view");
-        GLint projLoc = glGetUniformLocation(lightingShader.Program, "projection");
+
+
+        shaderColor.Use();
+
+        // Obtener las ubicaciones de los uniforms en el shader
+        GLint modelLoc = glGetUniformLocation(shaderColor.Program, "model");
+        GLint viewLoc = glGetUniformLocation(shaderColor.Program, "view");
+        GLint projLoc = glGetUniformLocation(shaderColor.Program, "projection");
+        GLint colorLoc = glGetUniformLocation(shaderColor.Program, "color");
+
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glm::mat4 model(1);
 
-        // Piso
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texPiso);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, -0.05f, 0.0f));
-        model = glm::scale(model, glm::vec3(12.0f, 0.1f, 10.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(0.0f, -0.15f, 0.0f),
+            glm::vec3(30.0f, 0.3f, 20.0f),
+            glm::vec3(0.78f, 0.72f, 0.60f));
 
-        // Techo morado
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texMorado);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 5.05f, 0.0f));
-        model = glm::scale(model, glm::vec3(12.0f, 0.1f, 10.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
 
-        // Pared fondo morada (detras de la tv)
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texMorado);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 2.5f, -5.05f));
-        model = glm::scale(model, glm::vec3(12.0f, 5.0f, 0.1f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Pared frontal lila (donde esta la puerta)
-        // Parte izquierda de la puerta
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texLila);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-4.0f, 2.5f, 5.05f));
-        model = glm::scale(model, glm::vec3(4.0f, 5.0f, 0.1f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Parte derecha de la puerta
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texLila);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(4.0f, 2.5f, 5.05f));
-        model = glm::scale(model, glm::vec3(4.0f, 5.0f, 0.1f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Parte sobre la puerta
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texLila);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 4.4f, 5.05f));
-        model = glm::scale(model, glm::vec3(4.0f, 1.2f, 0.1f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Pared derecha morada
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texMorado);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(6.05f, 2.5f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.1f, 5.0f, 10.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Pared izquierda lila
-        // Parte baja (bajo ventana)
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texLila);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 0.55f, 1.0f));
-        model = glm::scale(model, glm::vec3(0.1f, 1.1f, 6.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Parte alta (sobre ventana)
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texLila);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 4.4f, 1.0f));
-        model = glm::scale(model, glm::vec3(0.1f, 1.2f, 6.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Parte sin ventana hacia el fondo
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texLila);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 2.5f, -3.5f));
-        model = glm::scale(model, glm::vec3(0.1f, 5.0f, 3.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Moldura techo-pared (franja blanca perimetral)
-        // Frente
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texBlanco);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 4.92f, 5.0f));
-        model = glm::scale(model, glm::vec3(12.0f, 0.18f, 0.12f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Fondo
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texBlanco);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 4.92f, -5.0f));
-        model = glm::scale(model, glm::vec3(12.0f, 0.18f, 0.12f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Derecha
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texBlanco);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(6.0f, 4.92f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.12f, 0.18f, 10.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Izquierda
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texBlanco);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.0f, 4.92f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.12f, 0.18f, 10.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Columna blanca (entre ventana y sala, lado izquierdo)
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texBlanco);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-5.6f, 2.5f, 3.8f));
-        model = glm::scale(model, glm::vec3(0.35f, 5.0f, 0.35f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Ventana izquierda - marco cafe
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 2.8f, 1.5f));
-        model = glm::scale(model, glm::vec3(0.12f, 0.12f, 4.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 1.2f, 1.5f));
-        model = glm::scale(model, glm::vec3(0.12f, 0.12f, 4.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 2.0f, -0.8f));
-        model = glm::scale(model, glm::vec3(0.12f, 1.6f, 0.12f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 2.0f, 3.8f));
-        model = glm::scale(model, glm::vec3(0.12f, 1.6f, 0.12f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Ventana izquierda - vidrio
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texVidrio);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-6.05f, 2.0f, 1.5f));
-        model = glm::scale(model, glm::vec3(0.06f, 1.6f, 4.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Puerta doble - marco cafe superior
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 4.35f, 5.05f));
-        model = glm::scale(model, glm::vec3(4.0f, 0.12f, 0.15f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Marco izquierdo puerta
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-2.0f, 2.2f, 5.05f));
-        model = glm::scale(model, glm::vec3(0.12f, 4.4f, 0.15f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Marco derecho puerta
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(2.0f, 2.2f, 5.05f));
-        model = glm::scale(model, glm::vec3(0.12f, 4.4f, 0.15f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Division central puerta
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 2.2f, 5.05f));
-        model = glm::scale(model, glm::vec3(0.12f, 4.4f, 0.15f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Hoja izquierda puerta - vidrio
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texVidrio);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-1.0f, 2.2f, 5.05f));
-        model = glm::scale(model, glm::vec3(1.88f, 4.3f, 0.06f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Hoja derecha puerta - vidrio
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texVidrio);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(1.0f, 2.2f, 5.05f));
-        model = glm::scale(model, glm::vec3(1.88f, 4.3f, 0.06f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Arco de la puerta
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCafe);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texSpecular);
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0.0f, 4.6f, 5.05f));
-        model = glm::scale(model, glm::vec3(4.0f, 0.5f, 0.15f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-        // Lamparas
-        lampShader.Use();
-        GLint modelLocLamp = glGetUniformLocation(lampShader.Program, "model");
-        GLint viewLocLamp = glGetUniformLocation(lampShader.Program, "view");
-        GLint projLocLamp = glGetUniformLocation(lampShader.Program, "projection");
-        glUniformMatrix4fv(viewLocLamp, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projLocLamp, 1, GL_FALSE, glm::value_ptr(projection));
-
-        for (GLuint i = 0; i < 4; i++)
-        {
-            model = glm::mat4(1);
-            model = glm::translate(model, pointLightPositions[i]);
-            model = glm::scale(model, glm::vec3(0.5f, 0.05f, 0.5f));
-            glUniformMatrix4fv(modelLocLamp, 1, GL_FALSE, glm::value_ptr(model));
-            glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
+        float colH = 8.0f;
+        std::vector<glm::vec2> colPos = { {-8,-4},{8,-4},{-8,4},{8,4} };
+        for (auto& cp : colPos) {
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+                glm::vec3(cp.x, colH / 2.0f, cp.y),
+                glm::vec3(0.9f, colH, 0.9f),
+                glm::vec3(0.75f, 0.75f, 0.75f));
         }
+        // Techo que conecta las columnas
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(0.0f, 8.15f, 0.0f),
+            glm::vec3(18.0f, 0.3f, 10.0f),
+            glm::vec3(0.65f, 0.65f, 0.65f));
+
+
+
+        int nSteps = 14;
+        float stepH = 0.28f;
+        float stepD = 0.48f;
+        float stairW = 5.20f;
+        float stairX = -2.20f;   // mover escalera hacia la izquierda
+        float startZ = 3.20f;    // empieza al frente
+        float startY = 0.00f;
+
+        glm::vec3 stairTopColor(0.74f, 0.74f, 0.72f);
+        glm::vec3 stairFaceColor(0.58f, 0.58f, 0.56f);
+        glm::vec3 sideColor(0.86f, 0.86f, 0.84f);
+
+
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(stairX - stairW / 2.0f - 0.25f, 1.05f, 0.05f),
+            glm::vec3(0.35f, 2.10f, 7.40f),
+            sideColor);
+
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(stairX + stairW / 2.0f + 0.25f, 1.05f, 0.05f),
+            glm::vec3(0.35f, 2.10f, 7.40f),
+            sideColor);
+
+
+        for (int i = 0; i < nSteps; i++) {
+            float y = startY + (i * stepH);
+            float z = startZ - (i * stepD);
+
+            // Huella del escalon
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+                glm::vec3(stairX, y + 0.04f, z),
+                glm::vec3(stairW, 0.08f, stepD),
+                stairTopColor);
+
+
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+                glm::vec3(stairX, y - stepH / 2.0f, z + stepD / 2.0f),
+                glm::vec3(stairW, stepH, 0.08f),
+                stairFaceColor);
+
+            // Relleno bajo el escalon para que la escalera sea solida
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+                glm::vec3(stairX, y / 2.0f - 0.06f, z),
+                glm::vec3(stairW, y + 0.12f, stepD),
+                glm::vec3(0.68f, 0.68f, 0.66f));
+        }
+
+        // Descanso / segundo piso donde termina la escalera
+        float topY = startY + (nSteps * stepH);
+        float topZ = startZ - (nSteps * stepD) - 0.20f;
+
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(stairX, topY - 0.08f, topZ),
+            glm::vec3(stairW + 1.20f, 0.22f, 2.00f),
+            glm::vec3(0.72f, 0.72f, 0.70f));
+
+        // Plataforma del segundo piso hacia el fondo
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(stairX, topY - 0.10f, topZ - 1.55f),
+            glm::vec3(stairW + 3.00f, 0.25f, 2.20f),
+            glm::vec3(0.68f, 0.68f, 0.66f));
+
+        // Losa/puente al nivel del segundo piso
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(0.0f, topY + 0.02f, topZ - 0.60f),
+            glm::vec3(10.50f, 0.16f, 0.50f),
+            glm::vec3(0.70f, 0.70f, 0.68f));
+
+        // Losa inclinada hacia el segundo nivel.
+        // Esta pieza reemplaza el bloque verde: simula la base/piso que continúa hacia arriba.
+        DrawBoxRotatedX(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(4.20f, topY + 2.45f, topZ - 2.90f),
+            glm::vec3(5.60f, 0.28f, 6.80f),
+            glm::vec3(0.70f, 0.70f, 0.68f),
+            -42.0f);
+
+
+
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(5.75f, 0.65f, 2.70f),
+            glm::vec3(3.10f, 1.30f, 1.25f),
+            glm::vec3(0.80f, 0.10f, 0.05f)); // Rojo
+
+        // Cuerpo lateral (forma la L)
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(7.15f, 0.65f, 1.65f),
+            glm::vec3(1.25f, 1.30f, 1.20f),
+            glm::vec3(0.80f, 0.10f, 0.05f)); // Rojo
+
+        // Tablero blanco encima del mostrador
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(5.95f, 1.34f, 2.55f),
+            glm::vec3(3.65f, 0.12f, 1.75f),
+            glm::vec3(0.95f, 0.95f, 0.95f)); // Blanco
+
+
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(1.8f, 0.8f, 2.0f),
+            glm::vec3(0.9f, 1.6f, 0.9f),
+            glm::vec3(0.60f, 0.60f, 0.60f));
+
+        // Plataforma sobre el pedestal (mas ancha que el pedestal)
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(1.8f, 1.62f, 2.0f),
+            glm::vec3(1.2f, 0.12f, 1.2f),
+            glm::vec3(0.55f, 0.55f, 0.55f));
+
+        // Torso del busto
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(1.8f, 2.15f, 2.0f),
+            glm::vec3(0.7f, 0.55f, 0.5f),
+            glm::vec3(0.55f, 0.55f, 0.55f));
+
+        // Cabeza del busto
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc,
+            glm::vec3(1.8f, 2.68f, 2.0f),
+            glm::vec3(0.48f, 0.52f, 0.48f),
+            glm::vec3(0.58f, 0.58f, 0.58f));
+
+
+        shaderModel.Use();
+
+        // Obtener uniforms del shader de modelo
+        GLint modelLocM = glGetUniformLocation(shaderModel.Program, "model");
+        GLint viewLocM = glGetUniformLocation(shaderModel.Program, "view");
+        GLint projLocM = glGetUniformLocation(shaderModel.Program, "projection");
+
+        // Enviar matrices de camara y proyeccion (iguales que antes)
+        glUniformMatrix4fv(viewLocM, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(projLocM, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+        glm::mat4 modelM(1.0f);
+        modelM = glm::translate(modelM, glm::vec3(4.5f, 0.0f, 4.5f)); // MÁS AL FRENTE
+        modelM = glm::rotate(modelM, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+        modelM = glm::scale(modelM, glm::vec3(0.42f)); // MÁS GRANDE
+        glUniformMatrix4fv(modelLocM, 1, GL_FALSE, glm::value_ptr(modelM));
+        person.Draw(shaderModel); // Dibujar el modelo con todas sus mallas
+
+
 
         glfwSwapBuffers(window);
     }
+
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -649,54 +347,81 @@ int main()
     return 0;
 }
 
-void Animation()
+
+void DrawBox(GLuint VAO, Shader& shader, GLint modelLoc, GLint colorLoc,
+    glm::vec3 pos, glm::vec3 scale, glm::vec3 color)
 {
+    glm::mat4 model(1.0f);                          // Iniciar con identidad
+    model = glm::translate(model, pos);             // Mover al lugar indicado
+    model = glm::scale(model, scale);               // Aplicar tamano
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model)); // Enviar matriz al shader
+    glUniform3fv(colorLoc, 1, glm::value_ptr(color));                 // Enviar color al shader
+
+    glBindVertexArray(VAO);           // Activar el VAO del cubo
+    glDrawArrays(GL_TRIANGLES, 0, 36); // Dibujar 36 vertices = 12 triangulos = 6 caras
+    glBindVertexArray(0);             // Desactivar VAO
 }
+
+
+
+void DrawBoxRotatedX(GLuint VAO, Shader& shader, GLint modelLoc, GLint colorLoc,
+    glm::vec3 pos, glm::vec3 scale, glm::vec3 color, float angle)
+{
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, pos);
+    model = glm::rotate(model, glm::radians(angle), glm::vec3(1, 0, 0));
+    model = glm::scale(model, scale);
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
 
 void DoMovement()
 {
-    if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP])
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN])
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT])
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT])
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (keys[GLFW_KEY_W]) camera.ProcessKeyboard(FORWARD, deltaTime); // Adelante
+    if (keys[GLFW_KEY_S]) camera.ProcessKeyboard(BACKWARD, deltaTime); // Atras
+    if (keys[GLFW_KEY_A]) camera.ProcessKeyboard(LEFT, deltaTime); // Izquierda
+    if (keys[GLFW_KEY_D]) camera.ProcessKeyboard(RIGHT, deltaTime); // Derecha
 }
+
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-    if (GLFW_KEY_ESCAPE == key && GLFW_PRESS == action)
-        glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE); // Cerrar ventana al presionar Escape
 
-    if (key >= 0 && key < 1024)
-    {
-        if (action == GLFW_PRESS)   keys[key] = true;
-        if (action == GLFW_RELEASE) keys[key] = false;
-    }
-
-    if (keys[GLFW_KEY_SPACE])
-    {
-        active = !active;
-        if (active)
-            Light1 = glm::vec3(0.2f, 0.8f, 1.0f);
-        else
-            Light1 = glm::vec3(0);
+    // Actualizar el arreglo de teclas
+    if (key >= 0 && key < 1024) {
+        if (action == GLFW_PRESS)   keys[key] = true;  // Tecla presionada
+        if (action == GLFW_RELEASE) keys[key] = false; // Tecla soltada
     }
 }
 
+
 void MouseCallback(GLFWwindow* window, double xPos, double yPos)
 {
-    if (firstMouse)
-    {
+    if (firstMouse) {
         lastX = xPos;
         lastY = yPos;
-        firstMouse = false;
+        firstMouse = false; // Solo ignorar el primer evento
     }
-    GLfloat xOffset = xPos - lastX;
-    GLfloat yOffset = lastY - yPos;
+
+    GLfloat xOffset = xPos - lastX;        // Desplazamiento horizontal
+    GLfloat yOffset = lastY - yPos;        // Invertido: Y crece hacia abajo en pantalla
     lastX = xPos;
     lastY = yPos;
-    camera.ProcessMouseMovement(xOffset, yOffset);
+
+    camera.ProcessMouseMovement(xOffset, yOffset); // Rotar camara
+}
+
+
+void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+    camera.ProcessMouseScroll(yOffset); // Zoom de la camara
 }

@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Proyecto.cpp" />
+    <ClCompile Include="ProyectoFinal.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>

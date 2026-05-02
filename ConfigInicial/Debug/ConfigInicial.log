@@ -1,27 +1,19 @@
-﻿  Proyecto.cpp
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(188,30): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(213,27): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(213,27): warning C4244:         with
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(213,27): warning C4244:         [
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(213,27): warning C4244:             T=float
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(213,27): warning C4244:         ]
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(214,27): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(214,27): warning C4244:         with
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(214,27): warning C4244:         [
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(214,27): warning C4244:             T=float
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(214,27): warning C4244:         ]
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(215,27): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(215,27): warning C4244:         with
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(215,27): warning C4244:         [
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(215,27): warning C4244:             T=float
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(215,27): warning C4244:         ]
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(693,17): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(694,17): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(697,21): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(698,21): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(699,13): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-C:\Users\DELL\Documents\ProyectoFinal\ConfigInicial\Proyecto.cpp(700,13): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-soil2-debug.lib(image_DXT.obj) : warning LNK4099: no se encontró PDB 'soil2-debug.pdb' con 'soil2-debug.lib(image_DXT.obj)' o en 'C:\Users\DELL\Documents\ProyectoFinal\Debug\soil2-debug.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
-soil2-debug.lib(image_helper.obj) : warning LNK4099: no se encontró PDB 'soil2-debug.pdb' con 'soil2-debug.lib(image_helper.obj)' o en 'C:\Users\DELL\Documents\ProyectoFinal\Debug\soil2-debug.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
-soil2-debug.lib(SOIL2.obj) : warning LNK4099: no se encontró PDB 'soil2-debug.pdb' con 'soil2-debug.lib(SOIL2.obj)' o en 'C:\Users\DELL\Documents\ProyectoFinal\Debug\soil2-debug.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
-  ConfigInicial.vcxproj -> C:\Users\DELL\Documents\ProyectoFinal\Debug\ConfigInicial.exe
+﻿ProyectoFinal.obj : error LNK2005: ya se definió "void __cdecl DoMovement(void)" (?DoMovement@@YAXXZ) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "void __cdecl DrawBox(unsigned int,class Shader &,int,int,struct glm::vec<3,float,0>,struct glm::vec<3,float,0>,struct glm::vec<3,float,0>)" (?DrawBox@@YAXIAAVShader@@HHU?$vec@$02M$0A@@glm@@11@Z) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "void __cdecl DrawBoxRotatedX(unsigned int,class Shader &,int,int,struct glm::vec<3,float,0>,struct glm::vec<3,float,0>,struct glm::vec<3,float,0>,float)" (?DrawBoxRotatedX@@YAXIAAVShader@@HHU?$vec@$02M$0A@@glm@@11M@Z) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "void __cdecl KeyCallback(struct GLFWwindow *,int,int,int,int)" (?KeyCallback@@YAXPAUGLFWwindow@@HHHH@Z) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "void __cdecl MouseCallback(struct GLFWwindow *,double,double)" (?MouseCallback@@YAXPAUGLFWwindow@@NN@Z) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "void __cdecl ScrollCallback(struct GLFWwindow *,double,double)" (?ScrollCallback@@YAXPAUGLFWwindow@@NN@Z) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "int __cdecl TextureFromFile(char const *,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?TextureFromFile@@YAHPBDV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió _main en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "int SCREEN_WIDTH" (?SCREEN_WIDTH@@3HA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "int SCREEN_HEIGHT" (?SCREEN_HEIGHT@@3HA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "float lastX" (?lastX@@3MA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "float lastY" (?lastY@@3MA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "bool * keys" (?keys@@3PA_NA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "bool firstMouse" (?firstMouse@@3_NA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "float deltaTime" (?deltaTime@@3MA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "float lastFrame" (?lastFrame@@3MA) en Proyecto.obj
+ProyectoFinal.obj : error LNK2005: ya se definió "class Camera camera" (?camera@@3VCamera@@A) en Proyecto.obj
+LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
+C:\Users\DELL\Documents\ProyectoFinal\Debug\ConfigInicial.exe : fatal error LNK1169: se encontraron uno o más símbolos definidos simultáneamente
