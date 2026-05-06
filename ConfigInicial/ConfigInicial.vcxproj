@@ -31,7 +31,6 @@
     <None Include="Shader\modelLoading.vs" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Proyecto.cpp" />
     <ClCompile Include="ProyectoFinal.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

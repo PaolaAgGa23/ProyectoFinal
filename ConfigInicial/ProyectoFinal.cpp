@@ -522,6 +522,26 @@ int main()
             glm::vec3(0.0f, 4.0f, -10.0f), { 30.0f,8.5f,0.30f },
             glm::vec3(0.90f, 0.90f, 0.90f));
 
+        // Muro norte izquierdo — piedra volcánica
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+            glm::vec3(-8.0f, 4.0f, 15.8f), { 12.0f,8.5f,0.35f },
+            glm::vec3(0.28f, 0.25f, 0.22f));
+
+        // Muro norte derecho — piedra volcánica
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+            glm::vec3(8.0f, 4.0f, 15.8f), { 12.0f,8.5f,0.35f },
+            glm::vec3(0.28f, 0.25f, 0.22f));
+
+        // Franja superior sobre las puertas
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tConcr,
+            glm::vec3(0.0f, 6.8f, 15.8f), { 8.0f,2.8f,0.35f },
+            glm::vec3(0.72f, 0.72f, 0.70f));
+
+        // Piso exterior mas claro
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
+            glm::vec3(0.0f, -0.12f, 18.5f), { 30.0f,0.25f,6.0f },
+            glm::vec3(0.82f, 0.82f, 0.80f));
+
         // ====================================================
         //  CELOSIA NARANJA — UN SOLO TRAMO (foto EntradaEdifPrincipal)
         //  Esta entre las dos columnas izquierdas de la entrada,
