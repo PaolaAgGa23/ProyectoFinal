@@ -74,6 +74,18 @@ float doorAngle = 0.0f;
 bool  doorOpen = false;
 
 // ============================================================
+//  CONTROL DE ILUMINACION (teclas 1-4 y +/-)
+// ============================================================
+float lightAmbient = 0.75f;  // Intensidad ambiente  (tecla +/- )
+float lightDiffuse = 0.35f;  // Intensidad difusa    (tecla Q/Z )
+glm::vec3 lightPos = glm::vec3(0.0f, 15.0f, 5.0f);
+// Tecla 1: luz blanca neutra
+// Tecla 2: luz calida (atardecer)
+// Tecla 3: luz fria (noche)
+// Tecla 4: luz de interior (lamparas)
+int  lightMode = 1;
+
+// ============================================================
 //  CONFETI — pool preinicializado
 // ============================================================
 struct ConfettiParticle { float x, z, speed, rotSpeed, colorR, colorG, colorB, phase; };
@@ -205,6 +217,7 @@ int main()
     // --------------------------------------------------------
     Shader shaderColor("Shader/core.vs", "Shader/core.frag");
     Shader shaderModel("Shader/modelLoading.vs", "Shader/modelLoading.frag");
+    Shader shaderUnlit("Shader/unlit.vs", "Shader/unlit.frag"); // mural sin luz
 
     // --------------------------------------------------------
     //  Modelo externo
@@ -298,11 +311,22 @@ int main()
         glUniform1i(unlitLoc, 0);
         glUniform1i(useTexLoc, 0);
 
-        glm::vec3 lightPos(0.0f, 15.0f, 5.0f);
-        glm::vec3 lightColor(1.0f, 0.98f, 0.92f);
+        // Color de luz segun modo (controlado por teclas 1-4)
+        glm::vec3 lightColor;
+        switch (lightMode) {
+        case 1: lightColor = glm::vec3(1.00f, 0.98f, 0.92f); break; // blanca neutra
+        case 2: lightColor = glm::vec3(1.00f, 0.75f, 0.40f); break; // calida atardecer
+        case 3: lightColor = glm::vec3(0.55f, 0.70f, 1.00f); break; // fria noche
+        case 4: lightColor = glm::vec3(1.00f, 0.92f, 0.70f); break; // interior lamparas
+        }
+
         glUniform3fv(lightPLoc, 1, glm::value_ptr(lightPos));
         glUniform3fv(lightCLoc, 1, glm::value_ptr(lightColor));
         glUniform3fv(viewPLoc, 1, glm::value_ptr(camera.GetPosition()));
+
+        // Enviar intensidades al shader
+        glUniform1f(glGetUniformLocation(shaderColor.Program, "ambientStr"), lightAmbient);
+        glUniform1f(glGetUniformLocation(shaderColor.Program, "diffuseStr"), lightDiffuse);
 
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(glGetUniformLocation(shaderColor.Program, "texture1"), 0);
@@ -495,7 +519,7 @@ int main()
 
         // Muro fondo (lobby interior) — muro blanco liso
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
-            glm::vec3(0.0f, 4.0f, -9.8f), { 30.0f,8.5f,0.30f },
+            glm::vec3(0.0f, 4.0f, -10.0f), { 30.0f,8.5f,0.30f },
             glm::vec3(0.90f, 0.90f, 0.90f));
 
         // ====================================================
@@ -519,17 +543,13 @@ int main()
             { 14.5f,2.42f,-7.5f }, { 0.10f,0.15f,0.10f }, { 0.50f,0.50f,0.52f });
 
         // ====================================================
-        //  MURAL — va en la parte ALTA de la pared del fondo
-        //  ARRIBA de las puertas (fiel a foto 2 — escalera)
-        //  Puertas: Y=0 a Y=2.4  →  Mural: Y=2.6 hacia arriba
-        //  unlit=1: colores exactos de la foto sin iluminacion
+        //  MURAL — DrawBox simple con textura, sobre el muro
+        //  Z=-9.50 = delante del muro fondo (Z=-10.0)
         // ====================================================
-        glUniform1i(unlitLoc, 1);
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tMural,
-            glm::vec3(0.0f, 5.8f, -9.72f),   // Y=5.8 = mitad entre 2.6 y 9.0
-            glm::vec3(28.0f, 6.4f, 0.22f),   // alto 6.4m cubre de 2.6 a 9.0
+            glm::vec3(0.0f, 5.8f, -9.50f),
+            glm::vec3(28.0f, 6.4f, 0.05f),
             glm::vec3(1.0f, 1.0f, 1.0f));
-        glUniform1i(unlitLoc, 0);
 
         // ====================================================
         //  OBJETOS DE EVENTO (stands, sillas, portafolletos, etc.)
@@ -544,10 +564,10 @@ int main()
         }
         DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -9.5f,0,-7.5f });
         DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -9.5f,0, 0.5f });
-        // Banderas
-        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -5,0,-8.5f }, currentFrame);
-        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 0,0,-8.5f }, currentFrame);
-        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 5,0,-8.5f }, currentFrame);
+        // Banderas — dentro del pasillo, visibles desde la entrada
+        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -6.0f,0,-5.0f }, currentFrame);
+        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 0.0f,0,-5.0f }, currentFrame);
+        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 6.0f,0,-5.0f }, currentFrame);
         // Dinosaurio — animacion compleja 1
         DrawDino(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
             glm::vec3(0, 0, 5.5f), currentFrame);
@@ -616,24 +636,25 @@ GLuint LoadTexture(const char* path)
 
     int w, h, ch;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(path, &w, &h, &ch, 0);
+    // Forzar siempre 3 canales — fix para JPGs con perfil gris
+    unsigned char* data = stbi_load(path, &w, &h, &ch, 3);
 
     if (data) {
-        GLenum fmt = (ch == 4) ? GL_RGBA : GL_RGB;
         glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        std::cout << "Textura cargada: " << path << std::endl;
+        std::cout << "[TEX OK] " << path << " " << w << "x" << h << " orig_ch=" << ch << "\n";
     }
     else {
-        unsigned char white[3] = { 255,255,255 };
+        // Fallback rosa fuerte — si ves rosa sabes que falta el archivo
+        unsigned char pink[3] = { 255, 0, 128 };
         glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, white);
-        std::cout << "ADVERTENCIA: No se encontro " << path << " — usando blanco\n";
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, pink);
+        std::cout << "[TEX FALTA] " << path << "\n";
     }
     stbi_image_free(data);
     return id;
@@ -1280,6 +1301,28 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
     if (key == GLFW_KEY_E && action == GLFW_PRESS) { confettiActive = true; confettiTimer = 0; }
     if (key == GLFW_KEY_F && action == GLFW_PRESS) doorOpen = !doorOpen;
+
+    // ---- Control de iluminacion ----
+    // Teclas 1-4: cambiar modo de color de luz
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS) lightMode = 1; // blanca neutra
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS) lightMode = 2; // calida (atardecer)
+    if (key == GLFW_KEY_3 && action == GLFW_PRESS) lightMode = 3; // fria (noche)
+    if (key == GLFW_KEY_4 && action == GLFW_PRESS) lightMode = 4; // interior (lamparas)
+
+    // Tecla + / = : subir ambiente
+    if ((key == GLFW_KEY_EQUAL || key == GLFW_KEY_KP_ADD) && action == GLFW_PRESS)
+        lightAmbient = glm::min(lightAmbient + 0.10f, 1.0f);
+    // Tecla - : bajar ambiente
+    if ((key == GLFW_KEY_MINUS || key == GLFW_KEY_KP_SUBTRACT) && action == GLFW_PRESS)
+        lightAmbient = glm::max(lightAmbient - 0.10f, 0.0f);
+
+    // Tecla R : subir difusa
+    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+        lightDiffuse = glm::min(lightDiffuse + 0.10f, 1.0f);
+    // Tecla T : bajar difusa
+    if (key == GLFW_KEY_T && action == GLFW_PRESS)
+        lightDiffuse = glm::max(lightDiffuse - 0.10f, 0.0f);
+
     if (key >= 0 && key < 1024) {
         if (action == GLFW_PRESS)   keys[key] = true;
         if (action == GLFW_RELEASE) keys[key] = false;
