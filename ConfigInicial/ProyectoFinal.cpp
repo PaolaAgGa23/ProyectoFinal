@@ -614,6 +614,66 @@ int main()
         DrawSignage(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
             glm::vec3(4.5f, 2.2f, 15.5f), currentFrame);
 
+        // Techo exterior 
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tConcr,
+            glm::vec3(0.0f, 8.15f, 13.0f), { 30.0f,0.3f,8.0f },
+            glm::vec3(0.82f, 0.82f, 0.80f));
+
+        // Piso exterior claro 
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
+            glm::vec3(0.0f, 0.00f, 13.0f), { 28.0f,0.30f,8.0f },
+            glm::vec3(0.78f, 0.78f, 0.76f));
+
+        // Líneas retícula piso horizontal
+        for (int li = 0; li < 3; li++)
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+                glm::vec3(0.0f, 0.16f, 12.5f + li * 1.5f), { 28.0f,0.02f,0.12f },
+                glm::vec3(0.88f, 0.86f, 0.80f));
+
+        // Líneas retícula piso vertical
+        for (int li = -4; li <= 4; li++)
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+                glm::vec3(li * 3.0f, 0.16f, 14.0f), { 0.12f,0.02f,5.0f },
+                glm::vec3(0.88f, 0.86f, 0.80f));
+
+        // Columna exterior 
+        {
+            float colH = 8.0f, r = 0.45f, fw = 0.34f;
+            glm::vec3 cCol(0.72f, 0.70f, 0.66f);
+            float ang[8] = { 0,45,90,135,180,225,270,315 };
+            for (int fi = 0; fi < 8; fi++) {
+                float a = glm::radians(ang[fi]);
+                float fx = 10.0f + r * cosf(a);
+                float fz_ = 13.0f + r * sinf(a);
+                glm::mat4 m(1);
+                m = glm::translate(m, { fx,colH / 2.0f + 0.15f,fz_ });
+                m = glm::rotate(m, a, { 0,1,0 });
+                m = glm::scale(m, { fw,colH,fw });
+                _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tStone, m, cCol);
+            }
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+                { 10.0f,colH / 2.0f + 0.15f,13.0f }, { r * 1.35f,colH,r * 1.35f }, cCol);
+        }
+
+        // Columna exterior izquierda 
+        {
+            float colH = 8.0f, r = 0.45f, fw = 0.34f;
+            glm::vec3 cCol(0.72f, 0.70f, 0.66f);
+            float ang[8] = { 0,45,90,135,180,225,270,315 };
+            for (int fi = 0; fi < 8; fi++) {
+                float a = glm::radians(ang[fi]);
+                float fx = -10.0f + r * cosf(a);
+                float fz_ = 13.0f + r * sinf(a);
+                glm::mat4 m(1);
+                m = glm::translate(m, { fx,colH / 2.0f + 0.15f,fz_ });
+                m = glm::rotate(m, a, { 0,1,0 });
+                m = glm::scale(m, { fw,colH,fw });
+                _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tStone, m, cCol);
+            }
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+                { -10.0f,colH / 2.0f + 0.15f,13.0f }, { r * 1.35f,colH,r * 1.35f }, cCol);
+        }
+
         // ====================================================
         //  CELOSIA NARANJA — UN SOLO TRAMO (foto EntradaEdifPrincipal)
         //  Esta entre las dos columnas izquierdas de la entrada,
