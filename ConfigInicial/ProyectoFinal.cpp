@@ -542,6 +542,64 @@ int main()
             glm::vec3(0.0f, -0.12f, 18.5f), { 30.0f,0.25f,6.0f },
             glm::vec3(0.82f, 0.82f, 0.80f));
 
+        // Marco de madera izquierdo
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
+            glm::vec3(-3.8f, 3.5f, 15.7f), { 0.25f,7.0f,0.25f },
+            glm::vec3(0.45f, 0.32f, 0.18f));
+
+        // Marco de madera derecho
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
+            glm::vec3(3.8f, 3.5f, 15.7f), { 0.25f,7.0f,0.25f },
+            glm::vec3(0.45f, 0.32f, 0.18f));
+
+        // Marco de madera central
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
+            glm::vec3(0.0f, 3.5f, 15.7f), { 0.20f,7.0f,0.20f },
+            glm::vec3(0.45f, 0.32f, 0.18f));
+
+        // Marco horizontal superior
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
+            glm::vec3(0.0f, 5.85f, 15.7f), { 7.8f,0.20f,0.20f },
+            glm::vec3(0.45f, 0.32f, 0.18f));
+
+        // Vidrio puerta izquierda
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-1.9f, 2.9f, 15.75f), { 3.6f,5.6f,0.08f },
+            glm::vec3(0.75f, 0.85f, 0.90f));
+
+        // Vidrio puerta derecha
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(1.9f, 2.9f, 15.75f), { 3.6f,5.6f,0.08f },
+            glm::vec3(0.75f, 0.85f, 0.90f));
+
+        // Barrotes verticales vidrio izquierdo
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-2.8f, 2.9f, 15.78f), { 0.06f,5.6f,0.06f },
+            glm::vec3(0.70f, 0.70f, 0.72f));
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-1.0f, 2.9f, 15.78f), { 0.06f,5.6f,0.06f },
+            glm::vec3(0.70f, 0.70f, 0.72f));
+
+        // Barrotes verticales vidrio derecho
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(1.0f, 2.9f, 15.78f), { 0.06f,5.6f,0.06f },
+            glm::vec3(0.70f, 0.70f, 0.72f));
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(2.8f, 2.9f, 15.78f), { 0.06f,5.6f,0.06f },
+            glm::vec3(0.70f, 0.70f, 0.72f));
+
+        // Barrotes horizontales vidrio izquierdo
+        for (int fi = 0; fi < 3; fi++)
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+                glm::vec3(-1.9f, 1.5f + fi * 1.8f, 15.78f), { 3.6f,0.06f,0.06f },
+                glm::vec3(0.70f, 0.70f, 0.72f));
+
+        // Barrotes horizontales vidrio derecho
+        for (int fi = 0; fi < 3; fi++)
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+                glm::vec3(1.9f, 1.5f + fi * 1.8f, 15.78f), { 3.6f,0.06f,0.06f },
+                glm::vec3(0.70f, 0.70f, 0.72f));
+
         // ====================================================
         //  CELOSIA NARANJA — UN SOLO TRAMO (foto EntradaEdifPrincipal)
         //  Esta entre las dos columnas izquierdas de la entrada,
