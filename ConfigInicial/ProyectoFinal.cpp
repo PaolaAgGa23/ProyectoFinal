@@ -600,6 +600,20 @@ int main()
                 glm::vec3(1.9f, 1.5f + fi * 1.8f, 15.78f), { 3.6f,0.06f,0.06f },
                 glm::vec3(0.70f, 0.70f, 0.72f));
 
+        // Busto exterior izquierdo
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+            { -5.5f,0.8f,15.0f }, { 0.9f,1.6f,0.9f }, { 0.40f,0.38f,0.35f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+            { -5.5f,1.62f,15.0f }, { 1.2f,0.12f,1.2f }, { 0.35f,0.33f,0.30f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tMetal,
+            { -5.5f,2.15f,15.0f }, { 0.7f,0.55f,0.5f }, { 0.42f,0.40f,0.38f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tMetal,
+            { -5.5f,2.68f,15.0f }, { 0.48f,0.52f,0.48f }, { 0.44f,0.42f,0.40f });
+
+        // Señaletica derecha de la entrada
+        DrawSignage(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
+            glm::vec3(4.5f, 2.2f, 15.5f), currentFrame);
+
         // ====================================================
         //  CELOSIA NARANJA — UN SOLO TRAMO (foto EntradaEdifPrincipal)
         //  Esta entre las dos columnas izquierdas de la entrada,
