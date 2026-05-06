@@ -245,6 +245,7 @@ int main()
     GLuint tMetal = LoadTexture("images/metal_brushed.jpg");
     GLuint tPVC = LoadTexture("images/pvc_white.jpg");
     GLuint tConcr = LoadTexture("images/concrete_grey.jpg");
+    GLuint tMural = LoadTexture("images/mural.jpg"); // foto recortada del mural real
 
     glm::mat4 projection = glm::perspective(
         glm::radians(60.0f),
@@ -285,12 +286,17 @@ int main()
         GLint projLoc = glGetUniformLocation(shaderColor.Program, "projection");
         GLint colorLoc = glGetUniformLocation(shaderColor.Program, "color");
         GLint useTexLoc = glGetUniformLocation(shaderColor.Program, "useTexture");
+        GLint unlitLoc = glGetUniformLocation(shaderColor.Program, "unlit");
         GLint lightPLoc = glGetUniformLocation(shaderColor.Program, "lightPos");
         GLint lightCLoc = glGetUniformLocation(shaderColor.Program, "lightColor");
         GLint viewPLoc = glGetUniformLocation(shaderColor.Program, "viewPos");
 
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        // Por defecto: iluminacion activada, sin textura
+        glUniform1i(unlitLoc, 0);
+        glUniform1i(useTexLoc, 0);
 
         glm::vec3 lightPos(0.0f, 15.0f, 5.0f);
         glm::vec3 lightColor(1.0f, 0.98f, 0.92f);
@@ -473,21 +479,38 @@ int main()
         // ====================================================
         //  PAREDES DEL LOBBY
         // ====================================================
-        // Muro fondo blanco
-        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
-            { 0,4.0f,-9.8f }, { 30.0f,8.5f,0.3f }, { 0.90f,0.90f,0.90f });
-        // Muro lateral derecho (con ventana de vidrio — foto 5)
-        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
-            { 14.8f,4.0f,0 }, { 0.3f,8.5f,22.0f }, { 0.90f,0.90f,0.90f });
-        // Muro de piedra volcánica negra (foto 2/6, junto a celosía)
+        //  PAREDES — todas con textura aplicada directamente
+        // ====================================================
+
+        // Muro lateral IZQUIERDO completo — piedra volcánica oscura
+        // Es la pared continua que se ve en EntradaEdifPrincipal
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
-            { 13.5f,3.5f,3.0f }, { 0.4f,7.0f,6.0f }, { 0.20f,0.18f,0.16f });
-        // Muro ladrillo rojo (foto 5)
-        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            { 11.5f,3.5f,-2.0f }, { 0.3f,7.0f,4.0f }, { 0.55f,0.22f,0.15f });
-        // Ventana de vidrio tipo cuadricula (foto 2 y 7)
-        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            { 13.0f,2.0f,-2.0f }, { 0.15f,4.0f,3.5f }, { 0.62f,0.78f,0.85f });
+            glm::vec3(-14.8f, 4.0f, 0.0f), { 0.30f,8.5f,22.0f },
+            glm::vec3(0.28f, 0.25f, 0.22f));
+
+        // Muro lateral DERECHO — concreto/muro blanco
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
+            glm::vec3(14.8f, 4.0f, 0.0f), { 0.30f,8.5f,22.0f },
+            glm::vec3(0.88f, 0.88f, 0.88f));
+
+        // Muro fondo (lobby interior) — muro blanco liso
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
+            glm::vec3(0.0f, 4.0f, -9.8f), { 30.0f,8.5f,0.30f },
+            glm::vec3(0.90f, 0.90f, 0.90f));
+
+        // ====================================================
+        //  CELOSIA NARANJA — UN SOLO TRAMO (foto EntradaEdifPrincipal)
+        //  Esta entre las dos columnas izquierdas de la entrada,
+        //  aproximadamente entre Z=+4.5 y Z=+8.0 (tramo de entrada)
+        //  Con muro de piedra volcánica justo a su derecha
+        // ====================================================
+        DrawLattice(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
+            glm::vec3(-14.0f, 0.0f, 4.5f));
+
+        // Muro de piedra volcánica junto a la celosía (foto 1/2)
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+            glm::vec3(-13.8f, 3.5f, 1.5f), { 0.5f,7.0f,3.5f },
+            glm::vec3(0.22f, 0.20f, 0.18f));
 
         // Extintor rojo (foto 7)
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
@@ -496,11 +519,17 @@ int main()
             { 14.5f,2.42f,-7.5f }, { 0.10f,0.15f,0.10f }, { 0.50f,0.50f,0.52f });
 
         // ====================================================
-        //  MURAL — en pared superior inclinada del lobby (foto 7)
-        //  Posicion alta, sobre la puerta de acceso al auditorio
+        //  MURAL — va en la parte ALTA de la pared del fondo
+        //  ARRIBA de las puertas (fiel a foto 2 — escalera)
+        //  Puertas: Y=0 a Y=2.4  →  Mural: Y=2.6 hacia arriba
+        //  unlit=1: colores exactos de la foto sin iluminacion
         // ====================================================
-        DrawMural(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-            glm::vec3(-5.5f, 6.2f, -9.4f));
+        glUniform1i(unlitLoc, 1);
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tMural,
+            glm::vec3(0.0f, 5.8f, -9.72f),   // Y=5.8 = mitad entre 2.6 y 9.0
+            glm::vec3(28.0f, 6.4f, 0.22f),   // alto 6.4m cubre de 2.6 a 9.0
+            glm::vec3(1.0f, 1.0f, 1.0f));
+        glUniform1i(unlitLoc, 0);
 
         // ====================================================
         //  OBJETOS DE EVENTO (stands, sillas, portafolletos, etc.)
@@ -519,24 +548,32 @@ int main()
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -5,0,-8.5f }, currentFrame);
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 0,0,-8.5f }, currentFrame);
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 5,0,-8.5f }, currentFrame);
-        // Celosía naranja/dorada — lado izquierdo frontal (foto 6)
-        // La reja está entre las columnas izquierdas, frente a la entrada
-        DrawLattice(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
-            glm::vec3(-14.0f, 0.0f, -1.5f));
-
         // Dinosaurio — animacion compleja 1
         DrawDino(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
             glm::vec3(0, 0, 5.5f), currentFrame);
 
-        // Puerta — animacion simple 1 (tecla F)
+        // ====================================================
+        //  PUERTAS DEL AUDITORIO — a los lados del corredor
+        //  Muro blanco central entre las dos puertas
+        //  Las puertas se ven al terminar las escaleras (fondo)
+        // ====================================================
+        // Muro blanco central (fondo del corredor)
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
+            glm::vec3(0, 3.5f, -9.75f), { 6.0f,7.0f,0.28f },
+            glm::vec3(0.90f, 0.90f, 0.90f));
+        // Puerta izquierda
         DrawDoor(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-            glm::vec3(0, 0, -8.0f), doorAngle);
+            glm::vec3(-5.5f, 0.0f, -9.72f), doorAngle);
+        // Puerta derecha
+        DrawDoor(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
+            glm::vec3(5.5f, 0.0f, -9.72f), doorAngle);
 
-        // Señaletica pulsante — animacion simple 2
+        // Señaletica — pegada a las columnas, no volando
+        // Se coloca en la cara de columnas especificas a altura de pared (~2m)
         DrawSignage(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-            glm::vec3(-8, 3.5f, -4), currentFrame);
+            glm::vec3(-10.0f, 2.2f, -1.5f), currentFrame);
         DrawSignage(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-            glm::vec3(8, 3.5f, -4), currentFrame);
+            glm::vec3(10.0f, 2.2f, -1.5f), currentFrame);
 
         // Confeti — animacion simple 3 (tecla E)
         if (confettiActive)
@@ -612,11 +649,11 @@ static void _SendAndDraw(GLuint VAO, GLint modelLoc, GLint colorLoc,
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniform3fv(colorLoc, 1, glm::value_ptr(color));
     if (texID != 0) {
-        glUniform1i(useTexLoc, GL_TRUE);
+        glUniform1i(useTexLoc, 1);
         glBindTexture(GL_TEXTURE_2D, texID);
     }
     else {
-        glUniform1i(useTexLoc, GL_FALSE);
+        glUniform1i(useTexLoc, 0);
     }
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -758,41 +795,50 @@ void DrawFlag(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
 
 // ============================================================
 //  OBJETO 5 — CELOSIA NARANJA/DORADA
-//  Reja vertical de láminas, fiel a foto 6
-//  Marco de madera oscura + 12 láminas naranjas verticales
+//  La pared izquierda corre en dirección Z.
+//  Las láminas son PLANAS en XY y se separan a lo largo de Z.
+//  Así quedan PARALELAS al muro, no atravesándolo.
+//  Fiel a EntradaEdifPrincipal: barras verticales naranjas
+//  entre dos columnas, con muro de piedra detrás.
 // ============================================================
 void DrawLattice(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
     GLuint tWood, glm::vec3 bp)
 {
-    glm::vec3 cOr(0.88f, 0.52f, 0.06f);  // naranja dorado intenso (foto 6)
-    glm::vec3 cFr(0.45f, 0.25f, 0.05f);  // marco madera oscura
-    int   n = 12; float sw = 0.10f, sh = 7.20f, sd = 0.10f, gap = 0.38f;
-    float totalW = n * gap + sw;
+    glm::vec3 cOr(0.88f, 0.52f, 0.06f); // naranja dorado (foto)
+    glm::vec3 cFr(0.45f, 0.25f, 0.05f); // marco madera oscura
 
-    // Marco horizontal superior
+    int   n = 14;      // numero de laminas
+    float sh = 7.20f;   // alto de la reja (piso a techo)
+    float gap = 0.28f;   // separacion entre laminas (en Z)
+    float lw = 0.06f;   // grosor de cada lamina en X (delgada)
+    float lh = sh;      // alto de cada lamina
+    float ld = 0.12f;   // profundidad en Z (ancho visible de la barra)
+    float totalZ = n * gap;
+
+    // Marco horizontal superior (corre en Z)
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(totalW / 2.0f - gap / 2.0f, sh + 0.12f, 0),
-        glm::vec3(totalW + sw + 0.2f, 0.18f, sd + 0.06f), cFr);
+        bp + glm::vec3(0, sh + 0.10f, totalZ / 2.0f),
+        glm::vec3(0.15f, 0.16f, totalZ + 0.20f), cFr);
     // Marco horizontal inferior
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(totalW / 2.0f - gap / 2.0f, 0.09f, 0),
-        glm::vec3(totalW + sw + 0.2f, 0.18f, sd + 0.06f), cFr);
-    // Marco vertical izquierdo
+        bp + glm::vec3(0, 0.08f, totalZ / 2.0f),
+        glm::vec3(0.15f, 0.16f, totalZ + 0.20f), cFr);
+    // Marco vertical inicio (Z mínimo)
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(-0.12f, sh / 2.0f, 0),
-        glm::vec3(0.16f, sh + 0.3f, sd + 0.06f), cFr);
-    // Marco vertical derecho
+        bp + glm::vec3(0, sh / 2.0f, -0.10f),
+        glm::vec3(0.15f, sh + 0.30f, 0.15f), cFr);
+    // Marco vertical fin (Z máximo)
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(totalW + 0.10f, sh / 2.0f, 0),
-        glm::vec3(0.16f, sh + 0.3f, sd + 0.06f), cFr);
+        bp + glm::vec3(0, sh / 2.0f, totalZ + 0.10f),
+        glm::vec3(0.15f, sh + 0.30f, 0.15f), cFr);
 
-    // Láminas naranjas verticales
+    // Láminas naranjas: se repiten a lo largo de Z
+    // Cada lámina es PLANA en X (lw delgada), alta en Y, y ld en Z
     for (int i = 0; i < n; i++) {
-        float xOff = i * gap;
-        float zOff = (i % 2 == 0) ? 0.0f : 0.04f; // leve zigzag
+        float zPos = i * gap + gap * 0.5f;
         DrawBox(VAO, s, mL, cL, uTL, 0,
-            bp + glm::vec3(xOff, sh / 2.0f, zOff),
-            glm::vec3(sw, sh, sd), cOr);
+            bp + glm::vec3(0, sh / 2.0f, zPos),
+            glm::vec3(lw, lh, ld), cOr);
     }
 }
 
@@ -988,51 +1034,141 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
 }
 
 // ============================================================
-//  ANIMACION SIMPLE 1 — PUERTAS (pivote en borde interior)
+//  ANIMACION SIMPLE 1 — PUERTAS DEL AUDITORIO
+//  Reja cuadriculada blanca, pivote en borde exterior de cada hoja
+//  Fiel a PuertaIzquierdaAuditorio / PuertaDerechaAuditorio
 // ============================================================
 void DrawDoor(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
     glm::vec3 pos, float openAngle)
 {
-    glm::vec3 cFr(0.60f, 0.60f, 0.62f), cGl(0.72f, 0.88f, 0.95f), cHa(0.85f, 0.75f, 0.30f);
-    DrawBox(VAO, s, mL, cL, uTL, 0, pos + glm::vec3(0, 1.30f, 0), { 3,2.60f,.10f }, cFr);
+    glm::vec3 cMarco(0.80f, 0.80f, 0.82f); // marco aluminio blanco
+    glm::vec3 cReja(0.91f, 0.91f, 0.91f); // barrotes blancos
+    glm::vec3 cVidrio(0.78f, 0.84f, 0.88f);// relleno vidrio tenue
 
+    float dw = 1.55f, dh = 2.40f; // ancho y alto de cada hoja
+
+    // Marco fijo de la puerta (jamba)
+    // Superior
+    DrawBox(VAO, s, mL, cL, uTL, 0,
+        pos + glm::vec3(0, dh + 0.08f, 0), { dw * 2 + 0.20f,0.14f,0.14f }, cMarco);
+    // Lateral izq
+    DrawBox(VAO, s, mL, cL, uTL, 0,
+        pos + glm::vec3(-dw - 0.10f, dh / 2.0f, 0), { 0.12f,dh + 0.18f,0.12f }, cMarco);
+    // Lateral der
+    DrawBox(VAO, s, mL, cL, uTL, 0,
+        pos + glm::vec3(dw + 0.10f, dh / 2.0f, 0), { 0.12f,dh + 0.18f,0.12f }, cMarco);
+
+    // Funcion hoja: sign=-1 izquierda, sign=+1 derecha
     auto Leaf = [&](float sign) {
-        glm::vec3 piv = pos + glm::vec3(sign * 0.70f, 1.30f, 0);
+        // Pivote en borde EXTERIOR de la hoja
+        glm::vec3 pivot = pos + glm::vec3(sign * (dw * 0.5f + 0.05f), dh / 2.0f, 0.0f);
+
+        // Panel de vidrio base
         {
-            glm::mat4 m(1); m = glm::translate(m, piv);
+            glm::mat4 m(1);
+            m = glm::translate(m, pivot);
             m = glm::rotate(m, glm::radians(sign * openAngle), { 0,1,0 });
-            m = glm::translate(m, { sign * 0.70f,0,0 }); m = glm::scale(m, { 1.38f,2.48f,.06f });
-            _SendAndDraw(VAO, mL, cL, uTL, 0, m, cGl);
+            m = glm::translate(m, { sign * dw * 0.5f, 0, 0 });
+            m = glm::scale(m, { dw, dh, 0.06f });
+            _SendAndDraw(VAO, mL, cL, uTL, 0, m, cVidrio);
         }
-        {
-            glm::mat4 m(1); m = glm::translate(m, piv);
+        // Marco de la hoja
+        // superior e inferior
+        for (float fy : {dh * 0.5f - 0.04f, -dh * 0.5f + 0.04f}) {
+            glm::mat4 m(1);
+            m = glm::translate(m, pivot);
             m = glm::rotate(m, glm::radians(sign * openAngle), { 0,1,0 });
-            m = glm::translate(m, { sign * 0.28f,0,.06f }); m = glm::scale(m, { .06f,.22f,.06f });
-            _SendAndDraw(VAO, mL, cL, uTL, 0, m, cHa);
+            m = glm::translate(m, { sign * dw * 0.5f,fy,0.04f });
+            m = glm::scale(m, { dw,0.07f,0.07f });
+            _SendAndDraw(VAO, mL, cL, uTL, 0, m, cMarco);
+        }
+        // lateral exterior e interior
+        for (float fx : {-dw * 0.5f + 0.04f, dw * 0.5f - 0.04f}) {
+            glm::mat4 m(1);
+            m = glm::translate(m, pivot);
+            m = glm::rotate(m, glm::radians(sign * openAngle), { 0,1,0 });
+            m = glm::translate(m, { sign * dw * 0.5f + sign * fx * 0.0f, 0, 0.04f });
+            // reusamos fx directamente
+            glm::mat4 m2(1);
+            m2 = glm::translate(m2, pivot);
+            m2 = glm::rotate(m2, glm::radians(sign * openAngle), { 0,1,0 });
+            m2 = glm::translate(m2, { fx * sign + sign * (dw * 0.5f - dw * 0.5f),0,0.04f });
+            // Simplificado: poste vertical a cada lado
+            glm::mat4 mp(1);
+            mp = glm::translate(mp, pivot);
+            mp = glm::rotate(mp, glm::radians(sign * openAngle), { 0,1,0 });
+            mp = glm::translate(mp, { sign * (dw * 0.5f) + fx,0,0.04f });
+            mp = glm::scale(mp, { 0.07f,dh,0.07f });
+            _SendAndDraw(VAO, mL, cL, uTL, 0, mp, cMarco);
+        }
+        // Barrotes verticales interiores (cuadricula — 3 columnas)
+        for (int col = 1; col <= 3; col++) {
+            float lx = sign * (-dw * 0.5f + col * (dw / 4.0f));
+            glm::mat4 m(1);
+            m = glm::translate(m, pivot);
+            m = glm::rotate(m, glm::radians(sign * openAngle), { 0,1,0 });
+            m = glm::translate(m, { sign * dw * 0.5f + lx, 0, 0.05f });
+            m = glm::scale(m, { 0.055f, dh - 0.10f, 0.055f });
+            _SendAndDraw(VAO, mL, cL, uTL, 0, m, cReja);
+        }
+        // Barrotes horizontales (4 filas)
+        for (int row = 0; row < 4; row++) {
+            float ly = -dh * 0.5f + 0.08f + row * (dh - 0.16f) / 3.0f;
+            glm::mat4 m(1);
+            m = glm::translate(m, pivot);
+            m = glm::rotate(m, glm::radians(sign * openAngle), { 0,1,0 });
+            m = glm::translate(m, { sign * dw * 0.5f, ly, 0.05f });
+            m = glm::scale(m, { dw - 0.10f, 0.055f, 0.055f });
+            _SendAndDraw(VAO, mL, cL, uTL, 0, m, cReja);
+        }
+        // Manija
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, pivot);
+            m = glm::rotate(m, glm::radians(sign * openAngle), { 0,1,0 });
+            m = glm::translate(m, { sign * dw * 0.5f - sign * 0.35f, 0, 0.09f });
+            m = glm::scale(m, { 0.06f,0.30f,0.06f });
+            _SendAndDraw(VAO, mL, cL, uTL, 0, m, glm::vec3(0.70f, 0.70f, 0.72f));
         }
         };
-    Leaf(-1); Leaf(1);
+    Leaf(-1.0f);
+    Leaf(1.0f);
 }
 
 // ============================================================
-//  ANIMACION SIMPLE 2 — SEÑALETICA PULSANTE (BILLBOARD)
+//  ANIMACION SIMPLE 2 — SEÑALETICA "RUTA DE EVACUACION"
+//  Cartel verde pegado a la cara de una columna (no vuela)
+//  Billboard solo en Y para orientarse hacia la camara
 // ============================================================
 void DrawSignage(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
     glm::vec3 pos, float time)
 {
-    float pulse = 1.0f + 0.15f * sinf(time * 1.5f);
-    float dx = camera.GetPosition().x - pos.x, dz = camera.GetPosition().z - pos.z;
-    float ang = glm::degrees(atan2f(dx, dz));
+    // El letrero NO flota — está a altura fija en la pared/columna
+    // Solo el efecto de pulso (scale leve) es la animacion
+    float pulse = 1.0f + 0.06f * sinf(time * 1.8f); // pulso muy sutil
 
+    glm::vec3 cFondo(0.08f, 0.45f, 0.18f); // verde oscuro fondo
+    glm::vec3 cFlecha(0.95f, 0.95f, 0.95f); // flecha blanca
+    glm::vec3 cBorde(0.05f, 0.30f, 0.12f); // borde verde oscuro
+
+    // El letrero mira siempre al frente (no billboarding complejo,
+    // solo orientado en -Z para que se vea desde el pasillo)
     auto Sg = [&](glm::vec3 off, glm::vec3 sc, glm::vec3 col) {
-        glm::mat4 m(1); m = glm::translate(m, pos + off);
-        m = glm::rotate(m, glm::radians(ang), { 0,1,0 });
-        m = glm::scale(m, sc * pulse); _SendAndDraw(VAO, mL, cL, uTL, 0, m, col);
+        glm::mat4 m(1);
+        m = glm::translate(m, pos + off);
+        m = glm::scale(m, sc * pulse);
+        _SendAndDraw(VAO, mL, cL, uTL, 0, m, col);
         };
-    Sg({ 0,0,0 }, { .38f,.38f,.04f }, { 0.06f,0.45f,0.15f });
-    Sg({ 0,0,0 }, { .32f,.32f,.06f }, { 0.10f,0.72f,0.25f });
-    Sg({ 0,-.04f,0 }, { .08f,.14f,.08f }, { 0.95f,0.95f,0.95f });
-    Sg({ 0, .10f,0 }, { .07f,.07f,.07f }, { 0.95f,0.95f,0.95f });
+
+    // Cartel rectangular verde
+    Sg({ 0,0,0 }, { 0.55f,0.30f,0.04f }, cBorde);
+    Sg({ 0,0,0.03f }, { 0.50f,0.26f,0.04f }, cFondo);
+    // Flecha →
+    Sg({ 0.05f,0,0.05f }, { 0.22f,0.10f,0.04f }, cFlecha); // cuerpo flecha
+    Sg({ 0.18f,0,0.05f }, { 0.10f,0.18f,0.04f }, cFlecha); // punta flecha
+    // Texto "RUTA" simulado con 2 barras
+    Sg({ -0.10f, 0.04f,0.05f }, { 0.18f,0.04f,0.04f }, cFlecha);
+    Sg({ -0.10f,-0.04f,0.05f }, { 0.18f,0.04f,0.04f }, cFlecha);
 }
 
 // ============================================================
@@ -1075,9 +1211,26 @@ void DrawAgents(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, float time
         if (t < 0)t += 1.0f;
 
         glm::vec3 pos = BezierEval(bp, t); pos.y = 0;
-        // Limites estrictos del pasillo — nunca salen del area visible
-        // X: entre las dos filas de columnas (-9 a +9)
-        // Z: dentro del largo del pasillo (-8 a +8)
+
+        // ====================================================
+        //  COLISION SIMPLE — zonas prohibidas del espacio
+        //  Si el agente entra en una zona, se empuja hacia afuera
+        // ====================================================
+        // Zona 1: Escalera (X: -5 a 0.5, Z: -4 a 3.5)
+        if (pos.x > -5.0f && pos.x < 0.5f && pos.z > -4.0f && pos.z < 3.5f) {
+            // Empujar hacia el lado mas cercano en X
+            if (pos.x < -2.25f) pos.x = -5.2f;
+            else                pos.x = 0.7f;
+        }
+        // Zona 2: Mostrador rojo (X: 5 a 8.5, Z: 0.5 a 4)
+        if (pos.x > 5.0f && pos.x < 8.5f && pos.z > 0.5f && pos.z < 4.0f) {
+            pos.x = 4.8f;
+        }
+        // Zona 3: Busto (X: 0.8 a 2.8, Z: 0.8 a 3.2)
+        if (pos.x > 0.8f && pos.x < 2.8f && pos.z > 0.8f && pos.z < 3.2f) {
+            pos.x = 3.0f;
+        }
+        // Limites del pasillo (paredes)
         pos.x = glm::clamp(pos.x, -8.5f, 8.5f);
         pos.z = glm::clamp(pos.z, -7.5f, 8.0f);
         glm::vec3 next = BezierEval(bp, fminf(t + 0.01f, 1.0f));
