@@ -463,35 +463,18 @@ int main()
             // (tubos ya dibujados segmento a segmento arriba)
         }
 
-        // ====================================================
-        //  MOSTRADOR ROJO SEMICIRCULAR
-        // ====================================================
-        {
-            glm::vec3 cRed(0.82f, 0.08f, 0.06f), cTop(0.96f, 0.96f, 0.96f);
-            glm::vec3 ctr(6.5f, 0.0f, 2.2f); float R = 1.5f, h = 1.2f;
-            int nSeg = 12;
-            for (int si = 0; si < nSeg; si++) {
-                float a0 = glm::radians(180.0f + si * (180.0f / nSeg));
-                float a1 = glm::radians(180.0f + (si + 1) * (180.0f / nSeg));
-                float amid = (a0 + a1) * 0.5f;
-                float cx_ = ctr.x + R * cosf(amid);
-                float cz_ = ctr.z + R * sinf(amid);
-                glm::mat4 m(1);
-                m = glm::translate(m, { cx_,h / 2.0f,cz_ });
-                m = glm::rotate(m, amid + glm::radians(90.0f), { 0,1,0 });
-                m = glm::scale(m, { R * (a1 - a0) * 1.1f,h,0.12f });
-                _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, 0, m, cRed);
-            }
-            // Relleno interior para tapar huecos
-            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                { ctr.x,h / 2.0f,ctr.z - 0.3f }, { R * 1.8f,h,R * 0.9f }, cRed);
-            // Pared trasera plana
-            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                { ctr.x,h / 2.0f,ctr.z + R * 0.4f }, { R * 1.8f,h,0.10f }, cRed);
-            // Cubierta blanca superior
-            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                { ctr.x,h + 0.06f,ctr.z }, { R * 2.1f,0.12f,R * 1.1f }, cTop);
-        }
+        
+        //  MOSTRADOR ROJO CUADRADO
+        
+        // Cuerpo principal rojo
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(6.5f, 0.6f, 2.2f), { 3.0f,1.2f,1.5f },
+            glm::vec3(0.82f, 0.08f, 0.06f));
+
+        // Cubierta blanca superior
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(6.5f, 1.26f, 2.2f), { 3.1f,0.10f,1.6f },
+            glm::vec3(0.96f, 0.96f, 0.96f));
 
         // ===== CACTUS EN EL MOSTRADOR =====
         // Maceta cafe oscuro
@@ -933,11 +916,43 @@ int main()
             glm::vec3(-13.8f, 3.5f, 1.5f), { 0.5f,7.0f,3.5f },
             glm::vec3(0.22f, 0.20f, 0.18f));
 
-        // Extintor rojo (foto 7)
+        // Bulletin board 1
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
+            { 14.45f, 2.8f, -7.5f }, { 0.08f, 2.2f, 3.8f }, { 0.40f, 0.25f, 0.10f });
+        // Tablero corcho
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            { 14.5f,1.8f,-7.5f }, { 0.22f,0.55f,0.22f }, { 0.80f,0.08f,0.06f });
+            { 14.48f, 2.8f, -7.5f }, { 0.05f, 2.0f, 3.5f }, { 0.72f, 0.52f, 0.28f });
+        // Posters encima del corcho
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            { 14.5f,2.42f,-7.5f }, { 0.10f,0.15f,0.10f }, { 0.50f,0.50f,0.52f });
+            { 14.50f, 3.2f, -8.5f }, { 0.04f, 0.7f, 1.0f }, { 0.95f, 0.95f, 0.92f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.50f, 3.2f, -7.5f }, { 0.04f, 0.8f, 0.9f }, { 0.20f, 0.35f, 0.72f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.50f, 3.2f, -6.6f }, { 0.04f, 0.6f, 0.8f }, { 0.85f, 0.82f, 0.55f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.50f, 2.4f, -8.2f }, { 0.04f, 0.5f, 0.7f }, { 0.92f, 0.30f, 0.25f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.50f, 2.4f, -7.2f }, { 0.04f, 0.6f, 0.6f }, { 0.88f, 0.88f, 0.88f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.50f, 2.4f, -6.4f }, { 0.04f, 0.4f, 0.55f }, { 0.55f, 0.80f, 0.45f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.50f, 3.55f, -8.0f }, { 0.04f, 0.35f, 0.45f }, { 0.95f, 0.85f, 0.30f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.50f, 3.55f, -7.1f }, { 0.04f, 0.30f, 0.55f }, { 0.75f, 0.88f, 0.95f });
+        // Caballete
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.3f, 0.9f, -7.3f }, { 0.04f, 1.8f, 0.04f }, { 0.78f, 0.78f, 0.80f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.3f, 0.9f, -7.7f }, { 0.04f, 1.8f, 0.04f }, { 0.78f, 0.78f, 0.80f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.3f, 0.25f, -7.5f }, { 0.04f, 0.04f, 0.55f }, { 0.78f, 0.78f, 0.80f });
+        // Poster en caballete
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.32f, 1.5f, -7.5f }, { 0.04f, 1.0f, 0.75f }, { 0.95f, 0.95f, 0.92f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.33f, 1.35f, -7.5f }, { 0.04f, 0.55f, 0.65f }, { 0.15f, 0.30f, 0.68f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            { 14.33f, 1.85f, -7.5f }, { 0.04f, 0.28f, 0.65f }, { 0.92f, 0.92f, 0.92f });
 
         // ====================================================
         //  MURAL — DrawBox simple con textura, sobre el muro
