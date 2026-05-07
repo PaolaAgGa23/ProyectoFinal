@@ -259,6 +259,8 @@ int main()
     GLuint tPVC = LoadTexture("images/pvc_white.jpg");
     GLuint tConcr = LoadTexture("images/concrete_grey.jpg");
     GLuint tMural = LoadTexture("images/mural.jpg"); // foto recortada del mural real
+    GLuint tCactus = LoadTexture("images/cactus.jpg");
+    GLuint tColumna = LoadTexture("images/columna.jpg");
 
     glm::mat4 projection = glm::perspective(
         glm::radians(60.0f),
@@ -366,9 +368,9 @@ int main()
                     m = glm::translate(m, { fx,colH / 2.0f,fz_ });
                     m = glm::rotate(m, a, { 0,1,0 });
                     m = glm::scale(m, { fw,colH,fw });
-                    _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tStone, m, cCol);
+                    _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tColumna, m, cCol);
                 }
-                DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+                DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tColumna,
                     { cx,colH / 2.0f,cz }, { r * 1.35f,colH,r * 1.35f }, cCol);
                 };
             // Fila izquierda (lado abierto explanada) — 6 columnas
@@ -462,28 +464,85 @@ int main()
         }
 
         // ====================================================
-        //  MOSTRADOR ROJO SEMICIRCULAR (foto 1 — forma curva)
-        //  6 segmentos en arco de 180°
+        //  MOSTRADOR ROJO SEMICIRCULAR
         // ====================================================
         {
             glm::vec3 cRed(0.82f, 0.08f, 0.06f), cTop(0.96f, 0.96f, 0.96f);
             glm::vec3 ctr(6.5f, 0.0f, 2.2f); float R = 1.5f, h = 1.2f;
-            for (int si = 0; si < 6; si++) {
-                float a0 = glm::radians(180.0f + si * 30.0f);
-                float a1 = glm::radians(180.0f + (si + 1) * 30.0f);
+            int nSeg = 12;
+            for (int si = 0; si < nSeg; si++) {
+                float a0 = glm::radians(180.0f + si * (180.0f / nSeg));
+                float a1 = glm::radians(180.0f + (si + 1) * (180.0f / nSeg));
                 float amid = (a0 + a1) * 0.5f;
-                float cx_ = ctr.x + R * cosf(amid), cz_ = ctr.z + R * sinf(amid);
+                float cx_ = ctr.x + R * cosf(amid);
+                float cz_ = ctr.z + R * sinf(amid);
                 glm::mat4 m(1);
                 m = glm::translate(m, { cx_,h / 2.0f,cz_ });
                 m = glm::rotate(m, amid + glm::radians(90.0f), { 0,1,0 });
                 m = glm::scale(m, { R * (a1 - a0) * 1.1f,h,0.12f });
                 _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, 0, m, cRed);
             }
+            // Relleno interior para tapar huecos
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                { ctr.x,h + 0.06f,ctr.z }, { R * 2.1f,0.12f,R * 1.1f }, cTop);
+                { ctr.x,h / 2.0f,ctr.z - 0.3f }, { R * 1.8f,h,R * 0.9f }, cRed);
+            // Pared trasera plana
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
                 { ctr.x,h / 2.0f,ctr.z + R * 0.4f }, { R * 1.8f,h,0.10f }, cRed);
+            // Cubierta blanca superior
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+                { ctr.x,h + 0.06f,ctr.z }, { R * 2.1f,0.12f,R * 1.1f }, cTop);
         }
+
+        // ===== CACTUS EN EL MOSTRADOR =====
+        // Maceta cafe oscuro
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(6.5f, 1.32f, 2.2f), { 0.35f,0.22f,0.35f },
+            glm::vec3(0.42f, 0.22f, 0.10f));
+
+        // Franja naranja superior maceta
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(6.5f, 1.46f, 2.2f), { 0.38f,0.06f,0.38f },
+            glm::vec3(0.85f, 0.55f, 0.15f));
+
+        // Tronco central verde
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tCactus,
+            glm::vec3(6.5f, 1.95f, 2.2f), { 0.18f,0.85f,0.18f },
+            glm::vec3(0.15f, 0.55f, 0.10f));
+
+        // Brazo izquierdo horizontal
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tCactus,
+            glm::vec3(6.18f, 1.75f, 2.2f), { 0.30f,0.14f,0.14f },
+            glm::vec3(0.15f, 0.52f, 0.10f));
+
+        // Brazo izquierdo vertical (sube)
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tCactus,
+            glm::vec3(6.03f, 1.98f, 2.2f), { 0.14f,0.35f,0.14f },
+            glm::vec3(0.15f, 0.52f, 0.10f));
+
+        // Brazo derecho horizontal
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tCactus,
+            glm::vec3(6.82f, 1.75f, 2.2f), { 0.30f,0.14f,0.14f },
+            glm::vec3(0.15f, 0.52f, 0.10f));
+
+        // Brazo derecho vertical (sube)
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tCactus,
+            glm::vec3(6.97f, 1.98f, 2.2f), { 0.14f,0.35f,0.14f },
+            glm::vec3(0.15f, 0.52f, 0.10f));
+
+        // Florecita rosa arriba tronco
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(6.5f, 2.42f, 2.2f), { 0.12f,0.08f,0.12f },
+            glm::vec3(0.90f, 0.45f, 0.55f));
+
+        // Florecita rosa brazo izquierdo
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(6.03f, 2.20f, 2.2f), { 0.10f,0.07f,0.10f },
+            glm::vec3(0.90f, 0.45f, 0.55f));
+
+        // Florecita rosa brazo derecho
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(6.97f, 2.20f, 2.2f), { 0.10f,0.07f,0.10f },
+            glm::vec3(0.90f, 0.45f, 0.55f));
 
         // ====================================================
         //  BUSTO JAVIER BARROS SIERRA (foto 1)
@@ -835,9 +894,9 @@ int main()
                 m = glm::translate(m, { fx,colH / 2.0f + 0.15f,fz_ });
                 m = glm::rotate(m, a, { 0,1,0 });
                 m = glm::scale(m, { fw,colH,fw });
-                _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tStone, m, cCol);
+                _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tColumna, m, cCol);
             }
-            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tColumna,
                 { 10.0f,colH / 2.0f + 0.15f,13.0f }, { r * 1.35f,colH,r * 1.35f }, cCol);
         }
 
@@ -854,9 +913,9 @@ int main()
                 m = glm::translate(m, { fx,colH / 2.0f + 0.15f,fz_ });
                 m = glm::rotate(m, a, { 0,1,0 });
                 m = glm::scale(m, { fw,colH,fw });
-                _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tStone, m, cCol);
+                _SendAndDraw(VAO, modelLoc, colorLoc, useTexLoc, tColumna, m, cCol);
             }
-            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tColumna,
                 { -10.0f,colH / 2.0f + 0.15f,13.0f }, { r * 1.35f,colH,r * 1.35f }, cCol);
         }
 
