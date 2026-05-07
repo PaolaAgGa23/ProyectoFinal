@@ -524,70 +524,141 @@ int main()
             glm::vec3(23.0f, 1.2f, 4.0f), { 1.8f,2.0f,8.0f },
             glm::vec3(0.85f, 0.08f, 0.06f));
 
-        // Cabina superior
+        // Franja amarilla superior
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 2.8f, 4.0f), { 1.6f,1.0f,2.5f },
+            glm::vec3(23.0f, 2.18f, 4.0f), { 1.82f,0.15f,8.02f },
+            glm::vec3(0.90f, 0.72f, 0.04f));
+
+        // Cabina superior 
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, 2.18f, 4.0f), { 1.6f,0.9f,2.5f },
             glm::vec3(0.85f, 0.08f, 0.06f));
 
-        // Ventana delantera
+        // Franja amarilla cabina
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(22.44f, 1.5f, 2.5f), { 0.06f,0.6f,1.2f },
+            glm::vec3(23.0f, 3.06f, 4.0f), { 1.62f,0.10f,2.52f },
+            glm::vec3(0.90f, 0.72f, 0.04f));
+
+        // Techo de la cabina gris oscuro
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, 3.13f, 4.0f), { 1.7f,0.12f,2.6f },
+            glm::vec3(0.25f, 0.25f, 0.25f));
+
+        // Ventana izquierda delantera
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(22.08f, 1.4f, 1.8f), { 0.06f,0.55f,1.0f },
             glm::vec3(0.75f, 0.85f, 0.90f));
 
-        // Ventana trasera
+        // Ventana izquierda trasera
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(22.44f, 1.5f, 5.5f), { 0.06f,0.6f,1.2f },
+            glm::vec3(22.08f, 1.4f, 6.2f), { 0.06f,0.55f,1.0f },
             glm::vec3(0.75f, 0.85f, 0.90f));
 
-        // Ventana cabina izquierda
+        // Ventana izquierda central
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(22.44f, 2.9f, 3.5f), { 0.06f,0.4f,0.6f },
+            glm::vec3(22.08f, 1.4f, 4.0f), { 0.06f,0.55f,0.8f },
             glm::vec3(0.75f, 0.85f, 0.90f));
 
-        // Ventana cabina derecha
+        // Ventana cabina izquierda delantera
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(22.44f, 2.9f, 4.5f), { 0.06f,0.4f,0.6f },
+            glm::vec3(22.08f, 3.0f, 3.2f), { 0.06f,0.35f,0.55f },
             glm::vec3(0.75f, 0.85f, 0.90f));
 
-        // Plataforma delantera
+        // Ventana cabina izquierda trasera
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.5f, 0.5f), { 1.8f,0.2f,0.8f },
-            glm::vec3(0.20f, 0.20f, 0.20f));
+            glm::vec3(22.08f, 3.0f, 4.8f), { 0.06f,0.35f,0.55f },
+            glm::vec3(0.75f, 0.85f, 0.90f));
 
-        // Plataforma trasera
+        // Marco ventana izquierda delantera
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.5f, 7.5f), { 1.8f,0.2f,0.8f },
-            glm::vec3(0.20f, 0.20f, 0.20f));
+            glm::vec3(22.07f, 1.4f, 1.8f), { 0.04f,0.65f,1.1f },
+            glm::vec3(0.70f, 0.06f, 0.05f));
+
+        // Marco ventana izquierda trasera
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(22.07f, 1.4f, 6.2f), { 0.04f,0.65f,1.1f },
+            glm::vec3(0.70f, 0.06f, 0.05f));
+
+        // Plataforma delantera negra
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, 0.38f, 0.3f), { 1.8f,0.15f,1.0f },
+            glm::vec3(0.15f, 0.15f, 0.15f));
+
+        // Plataforma trasera negra
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, 0.38f, 7.7f), { 1.8f,0.15f,1.0f },
+            glm::vec3(0.15f, 0.15f, 0.15f));
+
+        // Escalon delantera 1
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, 0.15f, 0.1f), { 1.4f,0.08f,0.3f },
+            glm::vec3(0.15f, 0.15f, 0.15f));
+
+        // Escalon delantera 2
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, -0.05f, 0.0f), { 1.4f,0.08f,0.3f },
+            glm::vec3(0.15f, 0.15f, 0.15f));
+
+        // Escalon trasera 1
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, 0.15f, 7.9f), { 1.4f,0.08f,0.3f },
+            glm::vec3(0.15f, 0.15f, 0.15f));
+
+        // Escalon trasera 2
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, -0.05f, 8.0f), { 1.4f,0.08f,0.3f },
+            glm::vec3(0.15f, 0.15f, 0.15f));
+
+        // Barra escalon delantera
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(22.2f, 0.5f, 0.2f), { 0.06f,0.8f,0.06f },
+            glm::vec3(0.25f, 0.25f, 0.25f));
+
+        // Barra escalon trasera
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(22.2f, 0.5f, 7.8f), { 0.06f,0.8f,0.06f },
+            glm::vec3(0.25f, 0.25f, 0.25f));
+
+        // Chasis inferior negro
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(23.0f, 0.18f, 4.0f), { 1.85f,0.22f,8.2f },
+            glm::vec3(0.12f, 0.12f, 0.12f));
 
         // Rueda delantera izquierda
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.2f, 1.5f), { 0.3f,0.5f,0.5f },
+            glm::vec3(23.0f, 0.05f, 1.2f), { 0.3f,0.45f,0.45f },
             glm::vec3(0.10f, 0.10f, 0.10f));
 
         // Rueda delantera derecha
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.2f, 2.5f), { 0.3f,0.5f,0.5f },
+            glm::vec3(23.0f, 0.05f, 2.2f), { 0.3f,0.45f,0.45f },
             glm::vec3(0.10f, 0.10f, 0.10f));
 
         // Rueda trasera izquierda
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.2f, 5.5f), { 0.3f,0.5f,0.5f },
+            glm::vec3(23.0f, 0.05f, 5.8f), { 0.3f,0.45f,0.45f },
             glm::vec3(0.10f, 0.10f, 0.10f));
 
         // Rueda trasera derecha
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.2f, 6.5f), { 0.3f,0.5f,0.5f },
+            glm::vec3(23.0f, 0.05f, 6.8f), { 0.3f,0.45f,0.45f },
             glm::vec3(0.10f, 0.10f, 0.10f));
 
-        // Riel delantero
+        // Riel izquierdo
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.0f, 1.0f), { 0.12f,0.08f,10.0f },
+            glm::vec3(23.0f, -0.10f, 1.5f), { 0.10f,0.06f,10.0f },
             glm::vec3(0.35f, 0.35f, 0.35f));
 
-        // Riel trasero
+        // Riel derecho
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(23.0f, 0.0f, 7.0f), { 0.12f,0.08f,10.0f },
+            glm::vec3(23.0f, -0.10f, 6.5f), { 0.10f,0.06f,10.0f },
             glm::vec3(0.35f, 0.35f, 0.35f));
+
+        // Traviesas del riel
+        for (int ti = 0; ti < 6; ti++)
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+                glm::vec3(23.0f, -0.12f, 0.5f + ti * 1.5f), { 0.25f,0.06f,6.5f },
+                glm::vec3(0.30f, 0.20f, 0.10f));
 
         // Muro fondo (lobby interior) — muro blanco liso
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
