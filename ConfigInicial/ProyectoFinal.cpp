@@ -514,8 +514,10 @@ int main()
 
         // Muro lateral DERECHO — concreto/muro blanco
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
-            glm::vec3(14.8f, 4.0f, 0.0f), { 0.30f,8.5f,22.0f },
+            glm::vec3(14.8f, 4.0f, -4.0f), { 0.30f,8.5f,12.0f },
             glm::vec3(0.88f, 0.88f, 0.88f));
+
+        
 
         // Muro fondo (lobby interior) — muro blanco liso
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
@@ -613,6 +615,29 @@ int main()
         // Señaletica derecha de la entrada
         DrawSignage(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
             glm::vec3(4.5f, 2.2f, 15.5f), currentFrame);
+
+        // ===== BOTE DE BASURA CON TAPA =====
+        // Cuerpo rojo
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(13.5f, 0.7f, 2.5f), { 0.9f,1.4f,0.9f },
+            glm::vec3(0.85f, 0.08f, 0.06f));
+
+        // Aro superior
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(13.5f, 1.45f, 2.5f), { 0.95f,0.07f,0.95f },
+            glm::vec3(0.20f, 0.20f, 0.20f));
+
+        // Tapa negra
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(13.5f, 1.55f, 2.5f), { 1.0f,0.12f,1.0f },
+            glm::vec3(0.15f, 0.15f, 0.15f));
+
+        // Base del bote
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(13.5f, -0.02f, 2.5f), { 0.85f,0.05f,0.85f },
+            glm::vec3(0.20f, 0.20f, 0.20f));
+
+        //--------Muro Aula Magna----------------
 
         // Techo exterior 
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tConcr,
