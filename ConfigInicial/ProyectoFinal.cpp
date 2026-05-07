@@ -617,25 +617,45 @@ int main()
             glm::vec3(4.5f, 2.2f, 15.5f), currentFrame);
 
         // ===== BOTE DE BASURA CON TAPA =====
-        // Cuerpo rojo
+        // Cuerpo rojo principal
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
             glm::vec3(13.5f, 0.7f, 2.5f), { 0.9f,1.4f,0.9f },
             glm::vec3(0.85f, 0.08f, 0.06f));
 
-        // Aro superior
+        // Ranuras verticales — tiras oscuras sobre el cuerpo
+        for (int ri = 0; ri < 8; ri++) {
+            float angR = glm::radians(ri * 45.0f);
+            float rx = 13.5f + 0.46f * cosf(angR);
+            float rz = 2.5f + 0.46f * sinf(angR);
+            DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+                glm::vec3(rx, 0.7f, rz), { 0.04f,1.4f,0.04f },
+                glm::vec3(0.60f, 0.05f, 0.04f));
+        }
+
+        // Franja superior del cuerpo mas oscura
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(13.5f, 1.35f, 2.5f), { 0.92f,0.08f,0.92f },
+            glm::vec3(0.70f, 0.06f, 0.05f));
+
+        // Aro negro entre cuerpo y tapa
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
             glm::vec3(13.5f, 1.45f, 2.5f), { 0.95f,0.07f,0.95f },
-            glm::vec3(0.20f, 0.20f, 0.20f));
+            glm::vec3(0.12f, 0.12f, 0.12f));
 
-        // Tapa negra
+        // Tapa gris
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-            glm::vec3(13.5f, 1.55f, 2.5f), { 1.0f,0.12f,1.0f },
-            glm::vec3(0.15f, 0.15f, 0.15f));
+            glm::vec3(13.5f, 1.58f, 2.5f), { 1.0f,0.15f,1.0f },
+            glm::vec3(0.65f, 0.65f, 0.67f));
+
+        // Centro de la tapa mas elevado
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(13.5f, 1.68f, 2.5f), { 0.70f,0.08f,0.70f },
+            glm::vec3(0.60f, 0.60f, 0.62f));
 
         // Base del bote
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
             glm::vec3(13.5f, -0.02f, 2.5f), { 0.85f,0.05f,0.85f },
-            glm::vec3(0.20f, 0.20f, 0.20f));
+            glm::vec3(0.12f, 0.12f, 0.12f));
 
         //--------Muro Aula Magna----------------
 
