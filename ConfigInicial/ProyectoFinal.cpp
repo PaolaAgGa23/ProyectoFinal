@@ -1,11 +1,3 @@
-// ================================================================
-//  ProyectoFinal.cpp
-//  Equipo 01 — PYI Technologies
-//  Lobby Auditorio Javier Barros Sierra — Facultad de Ingenieria UNAM
-//  Laboratorio de Computacion Grafica e Interaccion Humano-Computadora
-//  Mayo 2026
-// ================================================================
-
 #include <string>
 #include <iostream>
 #include <vector>
@@ -41,8 +33,8 @@ void DoMovement();
 
 // ============================================================
 //  PROTOTIPOS — objetos y animaciones
-// ============================================================
 GLuint LoadTexture(const char* path);
+GLuint LoadTextureRGBA(const char* path);
 
 static void _SendAndDraw(GLuint VAO, GLint modelLoc, GLint colorLoc,
     GLint useTexLoc, GLuint texID,
@@ -67,6 +59,7 @@ void DrawConfetti(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, float ti
 void DrawSignage(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, glm::vec3 pos, float time);
 void DrawMural(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, glm::vec3 basePos);
 void DrawAgents(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, float time);
+void DrawMural(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, glm::vec3 bp);
 void DrawTotem(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, float time, glm::vec3 pos);
 void DrawWaterStation(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, glm::vec3 pos);
 
@@ -138,16 +131,11 @@ const int NUM_AGENTS = 5;
 // ya lleva 20% del recorrido — nunca coinciden en el mismo punto.
 // Las rutas van en carriles paralelos separados para evitar cruces.
 BezierPath agentPaths[NUM_AGENTS] = {
-    // Carril -6.5 (izquierdo), norte→sur
-    {{ -6.5f,0, 7.0f},{ -6.2f,0, 2.5f},{ -6.8f,0,-2.0f},{ -6.5f,0,-6.5f}, 0.13f, 0.00f},
-    // Carril -3.0 (centro-izq), sur→norte
-    {{ -3.0f,0,-6.5f},{ -3.3f,0,-1.5f},{ -2.7f,0, 3.0f},{ -3.0f,0, 7.0f}, 0.15f, 0.20f},
-    // Carril  0.5 (central), norte→sur
-    {{  0.5f,0, 7.0f},{  0.8f,0, 2.0f},{  0.2f,0,-2.5f},{  0.5f,0,-6.5f}, 0.12f, 0.40f},
-    // Carril  3.5 (centro-der), sur→norte
-    {{  3.5f,0,-6.5f},{  3.2f,0,-1.0f},{  3.8f,0, 3.5f},{  3.5f,0, 7.0f}, 0.16f, 0.60f},
-    // Carril  6.5 (derecho), norte→sur
-    {{  6.5f,0, 7.0f},{  6.2f,0, 2.0f},{  6.8f,0,-2.5f},{  6.5f,0,-6.5f}, 0.14f, 0.80f},
+    {{ -8.0f,0, 7.0f},{ -8.0f,0, 1.0f},{ -8.0f,0,-3.0f},{ -8.0f,0,-6.5f}, 0.13f, 0.00f},
+    {{ -7.0f,0,-6.5f},{ -7.0f,0,-3.0f},{ -7.0f,0, 1.0f},{ -7.0f,0, 7.0f}, 0.13f, 0.50f},
+    {{  0.8f,0, 7.0f},{  0.8f,0, 1.0f},{  0.8f,0,-3.0f},{  0.8f,0,-6.5f}, 0.15f, 0.25f},
+    {{  2.5f,0,-6.5f},{  2.5f,0,-3.0f},{  2.5f,0, 1.0f},{  2.5f,0, 7.0f}, 0.15f, 0.75f},
+    {{  4.5f,0, 7.0f},{  4.5f,0, 1.0f},{  4.5f,0,-3.0f},{  4.5f,0,-6.5f}, 0.12f, 0.50f},
 };
 
 // ============================================================
@@ -273,7 +261,7 @@ int main()
     GLuint tMetal = LoadTexture("images/metal_brushed.jpg");
     GLuint tPVC = LoadTexture("images/pvc_white.jpg");
     GLuint tConcr = LoadTexture("images/concrete_grey.jpg");
-    GLuint tMural = LoadTexture("images/mural.jpg");
+    GLuint tMural = LoadTextureRGBA("images/mural.jpg");
     GLuint tCactus = LoadTexture("images/cactus.jpg");
     GLuint tColumna = LoadTexture("images/columna.jpg");
 
@@ -363,11 +351,11 @@ int main()
             glm::vec3(0.15f, 0.15f, 0.16f));
         for (int li = -4; li <= 4; li++)
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                glm::vec3(0, 0.01f, li * 2.5f), glm::vec3(28.0f, 0.025f, 0.18f),
+                glm::vec3(0, -0.02f, li * 2.5f), glm::vec3(26.0f, 0.015f, 0.16f),
                 glm::vec3(0.70f, 0.65f, 0.48f));
         for (int li = -5; li <= 5; li++)
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                glm::vec3(li * 2.5f, 0.01f, 0), glm::vec3(0.18f, 0.025f, 22.0f),
+                glm::vec3(li * 2.5f, -0.02f, 0), glm::vec3(0.16f, 0.015f, 20.0f),
                 glm::vec3(0.70f, 0.65f, 0.48f));
 
         // ====================================================
@@ -423,7 +411,7 @@ int main()
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
                 { stairX - stairW / 2 - 0.25f,1.05f,0.05f }, { 0.35f,2.10f,7.40f }, sSide);
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                { stairX + stairW / 2 + 0.25f,1.05f,0.05f }, { 0.35f,2.10f,7.40f }, sSide);
+                { stairX + stairW / 2 + 0.25f,1.05f,3.20f }, { 0.35f,2.10f,2.40f }, sSide);
 
             for (int i = 0; i < nSteps; i++) {
                 float y = startY + (i * stepH), z = startZ - (i * stepD);
@@ -519,11 +507,26 @@ int main()
             { -0.5f,2.2f,-0.5f }, { 1.8f,0.45f,0.05f }, { 0.08f,0.08f,0.08f });
 
         // ====================================================
-        //  PAREDES DEL LOBBY
+        //  PARED IZQUIERDA — fiel a fotos EntradaFI
+        //  Celosia cubre todo el lado izquierdo de piso a techo
+        //  A la derecha: ~2m piedra negra, luego pared blanca
         // ====================================================
+
+        // Pared blanca
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
+            glm::vec3(-14.8f, 4.0f, -3.5f), { 0.30f,8.5f,15.0f },
+            glm::vec3(0.88f, 0.88f, 0.88f));
+        // Piedra volcanica
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
-            glm::vec3(-14.8f, 4.0f, 0.0f), { 0.30f,8.5f,22.0f },
-            glm::vec3(0.28f, 0.25f, 0.22f));
+            glm::vec3(-14.8f, 4.0f, 5.0f), { 0.30f,8.5f,2.0f },
+            glm::vec3(0.16f, 0.14f, 0.12f));
+
+        // Exterior
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-20.0f, 4.0f, 11.0f), { 0.10f,12.0f,10.0f },
+            glm::vec3(0.53f, 0.81f, 0.92f));
+
+        // PARED DERECHA
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWall,
             glm::vec3(14.8f, 4.0f, -4.0f), { 0.30f,8.5f,12.0f },
             glm::vec3(0.88f, 0.88f, 0.88f));
@@ -754,13 +757,29 @@ int main()
         }
 
         // ====================================================
-        //  CELOSIA NARANJA
+        //  ENTRADA: CELOSIA NARANJA + MURO PIEDRA VOLCANICA
+        //  Fiel a fotos reales: 22 barras naranja-dorado vivo,
+        //  muro de piedra pegado a la izquierda, luminarias UFO
         // ====================================================
         DrawLattice(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tWood,
-            glm::vec3(-14.0f, 0.0f, 4.5f));
-        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tStone,
-            glm::vec3(-13.8f, 3.5f, 1.5f), { 0.5f,7.0f,3.5f },
-            glm::vec3(0.22f, 0.20f, 0.18f));
+            glm::vec3(-14.75f, 0.0f, 6.0f));
+
+
+
+        // Luminaria UFO 1 (techo, foto: lampara redonda negra colgante)
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-8.0f, 7.70f, 6.0f), { 0.55f,0.18f,0.55f }, { 0.10f,0.10f,0.11f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-8.0f, 7.58f, 6.0f), { 0.50f,0.06f,0.50f }, { 0.95f,0.90f,0.75f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-8.0f, 7.88f, 6.0f), { 0.03f,0.25f,0.03f }, { 0.15f,0.15f,0.15f });
+        // Luminaria UFO 2
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-3.0f, 7.70f, 6.0f), { 0.55f,0.18f,0.55f }, { 0.10f,0.10f,0.11f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-3.0f, 7.58f, 6.0f), { 0.50f,0.06f,0.50f }, { 0.95f,0.90f,0.75f });
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(-3.0f, 7.88f, 6.0f), { 0.03f,0.25f,0.03f }, { 0.15f,0.15f,0.15f });
 
         // ====================================================
         //  TABLERO DE ANUNCIOS
@@ -801,53 +820,59 @@ int main()
         // ====================================================
         //  MURAL
         // ====================================================
+        // Mural — unlit=1 + forzar RGBA en carga para ver colores reales
+        glUniform1i(unlitLoc, 1);
         DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, tMural,
             glm::vec3(0.0f, 5.8f, -9.50f), glm::vec3(28.0f, 6.4f, 0.05f),
             glm::vec3(1.0f, 1.0f, 1.0f));
+        glUniform1i(unlitLoc, 0);
 
         // ====================================================
         //  OBJETOS DE EVENTO
         // ====================================================
 
-        // --- Stand S-01: animacion de colocacion (tecla G) ---
+        // Stand S-01
         if (standPlacing || standTimer > 0.0f)
             DrawStandPlacing(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
                 tPVC, tMetal,
-                glm::vec3(-11.0f, 0.0f, -6.0f), 0.0f,
+                glm::vec3(-12.5f, 0.0f, -6.0f), 0.0f,
                 standTimer, STAND_ANIM_DUR);
         else
             DrawStand(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-                tPVC, tMetal, glm::vec3(-11.0f, 0.0f, -6.0f), 0.0f);
+                tPVC, tMetal, glm::vec3(-12.5f, 0.0f, -6.0f), 0.0f);
         DrawChair(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-            tWood, glm::vec3(-9.0f, 0.0f, -6.0f), 180.0f);
+            tWood, glm::vec3(-12.5f, 0.0f, -6.0f), 0.0f);
 
-        // --- Stands S-02 a S-04 ---
+        // Stands S-02 a S-04
         for (int i = 1; i < 4; i++) {
             float zPos = -6.0f + i * 4.0f;
             DrawStand(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-                tPVC, tMetal, { -11.0f,0.0f,zPos }, 0.0f);
+                tPVC, tMetal, { -12.5f,0.0f,zPos }, 0.0f);
             DrawChair(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-                tWood, { -9.0f,0.0f,zPos }, 180.0f);
+                tWood, { -12.5f,0.0f,zPos }, 0.0f);
         }
 
-        DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -9.5f,0,-7.5f });
-        DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -9.5f,0, 0.5f });
+        DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -11.5f,0,-4.0f });
+        DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -11.5f,0, 0.0f });
 
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -6.0f,0,-5.0f }, currentFrame);
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 0.0f,0,-5.0f }, currentFrame);
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 6.0f,0,-5.0f }, currentFrame);
 
-        // --- Totem informativo digital (zona derecha, libre de escalera) ---
+        // Totem digital
         DrawTotem(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
             currentFrame, glm::vec3(3.5f, 0.0f, -2.0f));
 
-        // --- Estacion de hidratacion Puma Agua ---
+        // Estacion de agua
         DrawWaterStation(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
             glm::vec3(8.5f, 0.0f, -3.0f));
 
-        // --- Dinosaurio (animacion compleja 1) ---
-        DrawDino(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-            glm::vec3(0, 0, 5.5f), currentFrame);
+        // Dino camina por X=-8.5 (junto a pared izq, sin obstaculos)
+        {
+            float dinoZ = sinf(currentFrame * 0.35f) * 7.0f;
+            DrawDino(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
+                glm::vec3(-8.5f, 0.0f, dinoZ), currentFrame);
+        }
 
         // ====================================================
         //  PUERTAS DEL AUDITORIO
@@ -907,6 +932,35 @@ int main()
 // ============================================================
 //  CARGA DE TEXTURA
 // ============================================================
+// LoadTextureRGBA: carga forzando 4 canales para que imagenes
+// guardadas en escala de grises se muestren con sus colores reales
+GLuint LoadTextureRGBA(const char* path)
+{
+    GLuint id; glGenTextures(1, &id);
+    int w, h, ch;
+    stbi_set_flip_vertically_on_load(true);
+    // Forzar 4 canales (RGBA) — esto expande gris a color correctamente
+    unsigned char* data = stbi_load(path, &w, &h, &ch, 4);
+    if (data) {
+        glBindTexture(GL_TEXTURE_2D, id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        std::cout << "[TEX RGBA OK] " << path << " " << w << "x" << h << " orig_ch=" << ch << "\n";
+    }
+    else {
+        unsigned char pink[4] = { 255,0,128,255 };
+        glBindTexture(GL_TEXTURE_2D, id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pink);
+        std::cout << "[TEX FALTA] " << path << "\n";
+    }
+    stbi_image_free(data);
+    return id;
+}
+
 GLuint LoadTexture(const char* path)
 {
     GLuint id;
@@ -1048,7 +1102,6 @@ void DrawStandPlacing(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
 
     const float DROP_HEIGHT = 8.5f;
 
-    // Helper con offset Y de animacion
     auto DB = [&](GLuint tex, glm::vec3 lp, glm::vec3 sc, glm::vec3 col, float yExtra)
         {
             glm::mat4 par(1);
@@ -1060,7 +1113,6 @@ void DrawStandPlacing(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
             _SendAndDraw(VAO, mL, cL, uTL, tex, par * ch, col);
         };
 
-    // Calcula desplazamiento Y segun desfasamiento de la pieza
     auto PieceY = [&](float offset) -> float
         {
             float start = offset * duration * 0.40f;
@@ -1072,31 +1124,26 @@ void DrawStandPlacing(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
 
     float pw = 0.08f, ph = 2.6f;
 
-    // KF0: Postes delanteros
     float y0 = PieceY(0.00f);
     DB(tMetal, { -1.46f,ph / 2.0f,-1.46f }, { pw,ph,pw }, cAlum, y0);
     DB(tMetal, { 1.46f,ph / 2.0f,-1.46f }, { pw,ph,pw }, cAlum, y0);
 
-    // KF1: Postes traseros
     float y1 = PieceY(0.12f);
     DB(tMetal, { -1.46f,ph / 2.0f, 1.46f }, { pw,ph,pw }, cAlum, y1);
     DB(tMetal, { 1.46f,ph / 2.0f, 1.46f }, { pw,ph,pw }, cAlum, y1);
 
-    // KF2: Travesanos superiores
     float y2 = PieceY(0.25f);
     DB(tMetal, { 0.0f,ph - 0.04f,-1.46f }, { 3.0f,pw,pw }, cAlum, y2);
     DB(tMetal, { 0.0f,ph - 0.04f, 1.46f }, { 3.0f,pw,pw }, cAlum, y2);
     DB(tMetal, { -1.46f,ph - 0.04f, 0.0f }, { pw,pw,3.0f }, cAlum, y2);
     DB(tMetal, { 1.46f,ph - 0.04f, 0.0f }, { pw,pw,3.0f }, cAlum, y2);
 
-    // KF3: Paneles de PVC
     float y3 = PieceY(0.38f);
     DB(tPVC, { 0.0f, 1.3f, 1.44f }, { 2.92f,2.56f,0.04f }, cPVC_, y3);
     DB(tPVC, { -1.44f,1.3f, 0.0f }, { 0.04f,2.56f,2.92f }, cPVC_, y3);
     DB(tPVC, { 1.44f,1.3f, 0.5f }, { 0.04f,2.56f,1.90f }, cPVC_, y3);
     DB(0, { 0.0f, 2.2f, 1.43f }, { 2.90f,0.45f,0.06f }, cAzul, y3);
 
-    // KF4: Mostrador frontal
     float y4 = PieceY(0.52f);
     DB(tPVC, { 0.0f,1.05f,-1.10f }, { 2.10f,0.10f,0.60f }, cMostr, y4);
     DB(tPVC, { 0.0f,0.55f,-0.82f }, { 2.10f,1.00f,0.06f }, cPVC_, y4);
@@ -1182,23 +1229,38 @@ void DrawFlag(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
 void DrawLattice(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
     GLuint tWood, glm::vec3 bp)
 {
-    glm::vec3 cOr(0.88f, 0.52f, 0.06f), cFr(0.45f, 0.25f, 0.05f);
-    int   n = 14;
-    float sh = 7.20f, gap = 0.28f, lw = 0.06f, ld = 0.12f;
+    glm::vec3 cOr(0.92f, 0.55f, 0.04f);
+    glm::vec3 cFr(0.28f, 0.16f, 0.05f); // marco madera oscura
+    int   n = 50;                    // 50 barras x 0.20m = 10m
+    float sh = 8.15f;
+    float gap = 0.20f;
+    float bw = 0.07f;
+    float bd = 0.10f;
     float totalZ = n * gap;
 
+    // Marco horizontal superior
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(0, sh + 0.10f, totalZ / 2.0f), { 0.15f,0.16f,totalZ + 0.20f }, cFr);
+        bp + glm::vec3(0, sh + 0.06f, totalZ / 2.0f),
+        { 0.12f,0.12f,totalZ + 0.14f }, cFr);
+    // Marco horizontal inferior
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(0, 0.08f, totalZ / 2.0f), { 0.15f,0.16f,totalZ + 0.20f }, cFr);
+        bp + glm::vec3(0, 0.06f, totalZ / 2.0f),
+        { 0.12f,0.12f,totalZ + 0.14f }, cFr);
+    // Marco vertical izquierdo
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(0, sh / 2.0f, -0.10f), { 0.15f,sh + 0.30f,0.15f }, cFr);
+        bp + glm::vec3(0, sh / 2.0f, -0.07f),
+        { 0.12f,sh + 0.14f,0.12f }, cFr);
+    // Marco vertical derecho
     DrawBox(VAO, s, mL, cL, uTL, tWood,
-        bp + glm::vec3(0, sh / 2.0f, totalZ + 0.10f), { 0.15f,sh + 0.30f,0.15f }, cFr);
+        bp + glm::vec3(0, sh / 2.0f, totalZ + 0.07f),
+        { 0.12f,sh + 0.14f,0.12f }, cFr);
+
+    // Barras naranjas verticales
     for (int i = 0; i < n; i++) {
         float zPos = i * gap + gap * 0.5f;
         DrawBox(VAO, s, mL, cL, uTL, 0,
-            bp + glm::vec3(0, sh / 2.0f, zPos), { lw,sh,ld }, cOr);
+            bp + glm::vec3(0, sh / 2.0f, zPos),
+            { bw,sh,bd }, cOr);
     }
 }
 
@@ -1235,37 +1297,29 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
 
     auto P = [&](glm::mat4 m, glm::vec3 col) { _SendAndDraw(VAO, mL, cL, uTL, 0, m, col); };
 
-    // ---- TORSO (nodo raiz) ----
-    // mTorso: solo traslacion + rotacion (NO escala)
-    // Los hijos heredan esta matriz y le agregan su propio offset local
-    // El scale del torso se aplica SOLO al dibujo, no se propaga
+    // Torso
     glm::mat4 mTorso(1);
     mTorso = glm::translate(mTorso, pos + glm::vec3(0.0f, 1.10f + bobY, 0.0f));
     mTorso = glm::rotate(mTorso, glm::radians(tZ), glm::vec3(0, 0, 1));
 
-    // Dibuja torso (escala local, no afecta hijos)
     { glm::mat4 m = mTorso; m = glm::scale(m, { 0.75f,0.85f,0.65f }); P(m, cBody); }
-    // Barriga: offset local 0.33 en Z desde el centro del torso
     {
         glm::mat4 m = mTorso;
         m = glm::translate(m, { 0.0f,0.0f,0.33f });
         m = glm::scale(m, { 0.52f,0.65f,0.05f }); P(m, cBelly);
     }
 
-    // ---- CUELLO — hijo del torso ----
-    // Offset: 0.43 arriba del centro del torso (mitad torso = 0.425)
+    // Cuello
     glm::mat4 mCuello = mTorso;
     mCuello = glm::translate(mCuello, { 0.0f, 0.43f, 0.05f });
     mCuello = glm::rotate(mCuello, glm::radians(tZ * 0.4f), glm::vec3(0, 0, 1));
     { glm::mat4 m = mCuello; m = glm::scale(m, { 0.30f,0.38f,0.28f }); P(m, cBody); }
 
-    // ---- CABEZA — hija del cuello ----
-    // Offset: 0.19 arriba del centro del cuello (mitad cuello = 0.19)
+    // Cabeza
     glm::mat4 mCabeza = mCuello;
     mCabeza = glm::translate(mCabeza, { 0.0f, 0.34f, 0.0f });
     mCabeza = glm::rotate(mCabeza, glm::radians(hB), glm::vec3(1, 0, 0));
     { glm::mat4 m = mCabeza; m = glm::scale(m, { 0.50f,0.40f,0.46f }); P(m, cBody); }
-    // Hocico: 0.23 al frente de la cabeza
     {
         glm::mat4 m = mCabeza;
         m = glm::translate(m, { 0.0f,-0.05f,0.23f });
@@ -1278,8 +1332,7 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         m = glm::scale(m, { 0.08f,0.08f,0.05f }); P(m, cEye);
     }
 
-    // ---- BRAZO IZQUIERDO — hijo del torso ----
-    // Pivote en hombro: borde izq del torso (0.375) + altura hombro (0.25)
+    // Brazos
     {
         glm::mat4 mH = mTorso;
         mH = glm::translate(mH, { -0.375f, 0.25f, 0.0f });
@@ -1289,7 +1342,6 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         m = glm::translate(m, { -0.08f,-0.20f,0.0f });
         m = glm::scale(m, { 0.16f,0.40f,0.16f }); P(m, cBody);
     }
-    // ---- BRAZO DERECHO — hijo del torso ----
     {
         glm::mat4 mH = mTorso;
         mH = glm::translate(mH, { 0.375f, 0.25f, 0.0f });
@@ -1299,8 +1351,7 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         m = glm::scale(m, { 0.16f,0.40f,0.16f }); P(m, cBody);
     }
 
-    // ---- PIERNA IZQUIERDA — hija del torso ----
-    // Pivote en cadera: borde inferior torso (-0.425) + separacion lateral
+    // Piernas
     {
         glm::mat4 mC = mTorso;
         mC = glm::translate(mC, { -0.20f,-0.425f,0.0f });
@@ -1310,7 +1361,6 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         m = glm::translate(m, { 0.0f,-0.27f,0.0f });
         m = glm::scale(m, { 0.20f,0.54f,0.20f }); P(m, cDark);
     }
-    // ---- PIERNA DERECHA — hija del torso ----
     {
         glm::mat4 mC = mTorso;
         mC = glm::translate(mC, { 0.20f,-0.425f,0.0f });
@@ -1320,7 +1370,7 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         m = glm::scale(m, { 0.20f,0.54f,0.20f }); P(m, cDark);
     }
 
-    // ---- COLA — hija del torso ----
+    // Cola
     {
         glm::mat4 mCola = mTorso;
         mCola = glm::translate(mCola, { 0.0f,-0.10f,-0.33f });
@@ -1329,6 +1379,84 @@ void DrawDino(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         m = glm::translate(m, { 0.0f,0.0f,-0.26f });
         m = glm::scale(m, { 0.20f,0.20f,0.55f }); P(m, cDark);
     }
+}
+
+// ============================================================
+//  MURAL GEOMETRICO DEL LOBBY
+//  Abstraccion geometrica fiel al mural real del Auditorio JBS.
+//  Paleta: azul marino, verde oscuro, gris, beige, dorado,
+//  verde lima, morado, rojo ladrillo.
+//  Cajas delgadas rotadas en Z simulan las diagonales del mural.
+// ============================================================
+void DrawMural(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, glm::vec3 bp)
+{
+    glm::vec3 cFondo = { 0.12f,0.14f,0.18f };
+    glm::vec3 cAzulO = { 0.06f,0.10f,0.28f };
+    glm::vec3 cAzulM = { 0.08f,0.14f,0.38f };
+    glm::vec3 cVerdeO = { 0.10f,0.25f,0.20f };
+    glm::vec3 cVerdeA = { 0.15f,0.35f,0.30f };
+    glm::vec3 cGrisM = { 0.32f,0.35f,0.38f };
+    glm::vec3 cGrisC = { 0.55f,0.56f,0.52f };
+    glm::vec3 cBeige = { 0.70f,0.65f,0.52f };
+    glm::vec3 cOro = { 0.80f,0.55f,0.08f };
+    glm::vec3 cLima = { 0.18f,0.58f,0.15f };
+    glm::vec3 cMorado = { 0.35f,0.18f,0.48f };
+    glm::vec3 cRojo = { 0.60f,0.12f,0.10f };
+    glm::vec3 cAzulC = { 0.20f,0.42f,0.68f };
+    glm::vec3 cTeal = { 0.08f,0.35f,0.40f };
+
+    // Helper: caja delgada rotada en Z, centrada en bp + offset
+    auto T = [&](float ox, float oy, float w, float h, float rotZ, glm::vec3 col) {
+        glm::mat4 m(1);
+        m = glm::translate(m, bp + glm::vec3(ox, oy, 0.0f));
+        m = glm::rotate(m, glm::radians(rotZ), glm::vec3(0, 0, 1));
+        m = glm::scale(m, glm::vec3(w, h, 0.20f));
+        _SendAndDraw(VAO, mL, cL, uTL, 0, m, col);
+        };
+
+    // Fondo base
+    T(5.5f, 2.6f, 28.0f, 6.5f, 0.0f, cFondo);
+
+    // Bloques grandes de color
+    T(2.5f, 2.5f, 5.0f, 5.0f, 0.0f, cAzulO);
+    T(6.5f, 2.5f, 4.5f, 5.0f, 0.0f, cAzulM);
+    T(0.8f, 3.0f, 2.2f, 4.0f, 0.0f, cVerdeO);
+    T(10.5f, 3.5f, 2.5f, 3.5f, 0.0f, cVerdeO);
+    T(4.5f, 1.5f, 3.5f, 2.2f, 0.0f, cGrisM);
+    T(9.2f, 2.2f, 2.2f, 3.0f, 0.0f, cGrisM);
+
+    // Formas diagonales grandes
+    T(5.2f, 2.2f, 4.0f, 3.5f, -22.0f, cBeige);
+    T(3.8f, 3.0f, 3.2f, 4.5f, 18.0f, cAzulM);
+    T(7.0f, 2.8f, 2.8f, 4.0f, -15.0f, cAzulO);
+    T(1.5f, 2.0f, 2.8f, 3.8f, 20.0f, cVerdeO);
+    T(5.8f, 3.5f, 2.5f, 2.5f, 35.0f, cGrisC);
+    T(4.2f, 1.2f, 3.0f, 2.0f, -10.0f, cTeal);
+
+    // Formas medianas
+    T(3.0f, 3.8f, 2.2f, 1.8f, 28.0f, cBeige);
+    T(8.0f, 2.0f, 2.0f, 2.5f, -30.0f, cBeige);
+    T(1.2f, 1.8f, 1.8f, 3.0f, 25.0f, cVerdeA);
+    T(9.5f, 3.0f, 1.5f, 2.8f, -18.0f, cVerdeA);
+    T(2.2f, 1.5f, 1.8f, 2.8f, 15.0f, cAzulC);
+    T(7.8f, 3.8f, 1.5f, 2.0f, -22.0f, cAzulC);
+    T(6.5f, 1.8f, 2.0f, 1.8f, 40.0f, cGrisM);
+
+    // Morado y rojo (esquina derecha)
+    T(10.8f, 2.5f, 2.0f, 3.5f, -10.0f, cMorado);
+    T(11.2f, 1.5f, 1.5f, 2.8f, 8.0f, cRojo);
+    T(10.5f, 4.5f, 1.2f, 1.5f, 20.0f, cMorado);
+
+    // Destellos de oro (lineas diagonales caracteristicas)
+    T(2.8f, 2.8f, 3.5f, 0.22f, -6.0f, cOro);
+    T(6.5f, 3.5f, 2.5f, 0.18f, 8.0f, cOro);
+    T(9.0f, 2.6f, 2.0f, 0.16f, -4.0f, cOro);
+    T(4.5f, 4.8f, 1.8f, 0.15f, 5.0f, cOro);
+
+    // Acentos verde lima
+    T(0.5f, 2.2f, 1.0f, 2.0f, -18.0f, cLima);
+    T(8.8f, 4.2f, 0.8f, 1.5f, 25.0f, cLima);
+    T(5.5f, 0.8f, 0.6f, 1.0f, 42.0f, cLima);
 }
 
 // ============================================================
@@ -1348,7 +1476,7 @@ void DrawTotem(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
     glm::vec3 cGold(0.85f, 0.65f, 0.13f);
     glm::vec3 cGreen(0.15f, 0.65f, 0.30f);
 
-    // Pulso de brillo — simula contenido en loop
+
     float br = 0.85f + 0.15f * sinf(time * 0.8f);
     glm::vec3 cScreenLive(cScreen.r * br, cScreen.g * br, cScreen.b * br + 0.08f * br);
 
@@ -1356,28 +1484,28 @@ void DrawTotem(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         DrawBox(VAO, s, mL, cL, uTL, 0, pos + lp, sc, col);
         };
 
-    // Base escalonada
+
     DB({ 0.0f,0.05f,0.0f }, { 0.80f,0.10f,0.80f }, cBase);
     DB({ 0.0f,0.13f,0.0f }, { 0.55f,0.07f,0.55f }, cBase);
     DB({ 0.0f,0.19f,0.0f }, { 0.35f,0.06f,0.35f }, cBase);
 
-    // Poste central
+
     DB({ 0.0f,1.20f,0.000f }, { 0.12f,2.02f,0.12f }, cBase);
     DB({ 0.0f,1.20f,0.055f }, { 0.06f,2.00f,0.06f }, cMarco);
 
-    // Marco pantalla
+
     DB({ 0.0f,2.55f,0.00f }, { 0.68f,1.85f,0.10f }, cMarco);
 
-    // Pantalla activa con pulso
+
     DB({ 0.0f,2.58f,0.04f }, { 0.58f,1.60f,0.06f }, cScreenLive);
 
-    // UI — barra de titulo dorada (identidad UNAM)
+
     DB({ 0.0f,3.28f,0.08f }, { 0.54f,0.14f,0.04f }, cGold);
 
-    // UI — subtitulo
+
     DB({ 0.0f,3.10f,0.08f }, { 0.42f,0.05f,0.04f }, cUI);
 
-    // UI — 5 filas de cronograma
+
     for (int li = 0; li < 5; li++) {
         float ly = 2.90f - li * 0.22f;
         glm::vec3 rowCol = (li % 2 == 0)
@@ -1388,14 +1516,14 @@ void DrawTotem(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL,
         DB({ 0.04f, ly,0.10f }, { 0.30f,0.04f,0.04f }, cUI * 0.7f);
     }
 
-    // UI — pie de pantalla / mapa
+
     DB({ 0.0f,  1.88f,0.08f }, { 0.54f,0.16f,0.04f }, glm::vec3(0.10f, 0.14f, 0.28f));
     DB({ -0.05f,1.88f,0.10f }, { 0.22f,0.10f,0.04f }, cGold * 0.7f);
 
-    // Cornisa superior
+
     DB({ 0.0f,3.48f,0.01f }, { 0.72f,0.06f,0.12f }, cMarco);
 
-    // LED indicador (parpadeo)
+
     float ledPulse = (sinf(time * 2.5f) > 0.3f) ? 1.0f : 0.2f;
     DB({ 0.28f,3.48f,0.07f }, { 0.04f,0.04f,0.04f }, cGreen * ledPulse);
 }
@@ -1588,14 +1716,17 @@ void DrawAgents(GLuint VAO, Shader& s, GLint mL, GLint cL, GLint uTL, float time
 
         glm::vec3 pos = BezierEval(bp, t); pos.y = 0;
 
-        if (pos.x > -5.0f && pos.x<0.5f && pos.z>-4.0f && pos.z < 3.5f)
-            pos.x = (pos.x < -2.25f) ? -5.2f : 0.7f;
-        if (pos.x > 5.0f && pos.x < 8.5f && pos.z>0.5f && pos.z < 4.0f)
+        if (pos.x > -5.2f && pos.x<0.4f && pos.z>-2.0f && pos.z < 4.4f)
+            pos.x = (pos.x < -2.4f) ? -5.5f : 0.6f;
+        if (pos.x > 5.0f && pos.x < 8.0f && pos.z>1.5f && pos.z < 3.0f)
             pos.x = 4.8f;
-        if (pos.x > 0.8f && pos.x < 2.8f && pos.z>0.8f && pos.z < 3.2f)
-            pos.x = 3.0f;
-
-        pos.x = glm::clamp(pos.x, -8.5f, 8.5f);
+        if (pos.x > 1.4f && pos.x < 2.2f && pos.z>1.6f && pos.z < 2.5f)
+            pos.x = 0.6f;
+        if (pos.x > 3.1f && pos.x<3.9f && pos.z>-2.4f && pos.z < -1.6f)
+            pos.z = -2.6f;
+        if (pos.x > 8.0f && pos.x<9.0f && pos.z>-3.5f && pos.z < -2.5f)
+            pos.x = 7.8f;
+        pos.x = glm::clamp(pos.x, -8.8f, 8.8f);
         pos.z = glm::clamp(pos.z, -7.5f, 8.0f);
 
         glm::vec3 next = BezierEval(bp, fminf(t + 0.01f, 1.0f));
