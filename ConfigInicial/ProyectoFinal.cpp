@@ -131,11 +131,11 @@ const int NUM_AGENTS = 5;
 // ya lleva 20% del recorrido — nunca coinciden en el mismo punto.
 // Las rutas van en carriles paralelos separados para evitar cruces.
 BezierPath agentPaths[NUM_AGENTS] = {
-    {{ -8.0f,0, 7.0f},{ -8.0f,0, 1.0f},{ -8.0f,0,-3.0f},{ -8.0f,0,-6.5f}, 0.13f, 0.00f},
-    {{ -7.0f,0,-6.5f},{ -7.0f,0,-3.0f},{ -7.0f,0, 1.0f},{ -7.0f,0, 7.0f}, 0.13f, 0.50f},
-    {{  0.8f,0, 7.0f},{  0.8f,0, 1.0f},{  0.8f,0,-3.0f},{  0.8f,0,-6.5f}, 0.15f, 0.25f},
-    {{  2.5f,0,-6.5f},{  2.5f,0,-3.0f},{  2.5f,0, 1.0f},{  2.5f,0, 7.0f}, 0.15f, 0.75f},
-    {{  4.5f,0, 7.0f},{  4.5f,0, 1.0f},{  4.5f,0,-3.0f},{  4.5f,0,-6.5f}, 0.12f, 0.50f},
+    {{ -8.0f,0,-5.0f},{ -8.0f,0,-5.0f},{ -8.0f,0, 5.0f},{ -8.0f,0, 5.0f}, 0.18f, 0.00f},
+    {{ -7.0f,0,-7.0f},{ -7.0f,0,-7.0f},{ -7.0f,0,-1.0f},{ -7.0f,0,-1.0f}, 0.18f, 0.50f},
+    {{ -6.0f,0,-1.0f},{ -6.0f,0,-1.0f},{ -6.0f,0,-7.0f},{ -6.0f,0,-7.0f}, 0.16f, 0.25f},
+    {{  1.5f,0,-7.0f},{  1.5f,0,-7.0f},{  1.5f,0, 0.0f},{  1.5f,0, 0.0f}, 0.16f, 0.75f},
+    {{  4.5f,0, 0.0f},{  4.5f,0, 0.0f},{  4.5f,0,-7.0f},{  4.5f,0,-7.0f}, 0.14f, 0.50f},
 };
 
 // ============================================================
@@ -409,9 +409,9 @@ int main()
             glm::vec3 sSide(0.88f, 0.88f, 0.86f), cAmar(0.88f, 0.72f, 0.04f);
 
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                { stairX - stairW / 2 - 0.25f,1.05f,0.05f }, { 0.35f,2.10f,7.40f }, sSide);
+                { stairX - stairW / 2 - 0.25f,1.05f,-0.16f }, { 0.35f,2.10f,6.72f }, sSide);
             DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
-                { stairX + stairW / 2 + 0.25f,1.05f,3.20f }, { 0.35f,2.10f,2.40f }, sSide);
+                { stairX + stairW / 2 + 0.25f,1.05f,-0.16f }, { 0.35f,2.10f,6.72f }, sSide);
 
             for (int i = 0; i < nSteps; i++) {
                 float y = startY + (i * stepH), z = startZ - (i * stepD);
@@ -855,7 +855,7 @@ int main()
         DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -11.5f,0,-4.0f });
         DrawBrochure(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -11.5f,0, 0.0f });
 
-        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -6.0f,0,-5.0f }, currentFrame);
+        DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { -4.0f,0,-5.0f }, currentFrame);
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 0.0f,0,-5.0f }, currentFrame);
         DrawFlag(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, { 6.0f,0,-5.0f }, currentFrame);
 
@@ -867,12 +867,34 @@ int main()
         DrawWaterStation(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
             glm::vec3(8.5f, 0.0f, -3.0f));
 
-        // Dino camina por X=-8.5 (junto a pared izq, sin obstaculos)
+        // Dino en zona exterior junto al tren (X=12, verificado libre)
         {
-            float dinoZ = sinf(currentFrame * 0.35f) * 7.0f;
+            float dinoZ = sinf(currentFrame * 0.30f) * 5.0f;
             DrawDino(VAO, shaderColor, modelLoc, colorLoc, useTexLoc,
-                glm::vec3(-8.5f, 0.0f, dinoZ), currentFrame);
+                glm::vec3(12.0f, 0.0f, dinoZ), currentFrame);
         }
+
+        // ====================================================
+        //  EXTINTOR — junto a pared derecha, lejos de puertas
+        // ====================================================
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(12.5f, 0.75f, -9.0f), { 0.22f,1.10f,0.22f },
+            glm::vec3(0.85f, 0.08f, 0.06f));
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(12.5f, 1.38f, -9.0f), { 0.10f,0.18f,0.10f },
+            glm::vec3(0.75f, 0.75f, 0.77f));
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(12.5f, 1.52f, -9.0f), { 0.18f,0.05f,0.05f },
+            glm::vec3(0.20f, 0.20f, 0.20f));
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(12.38f, 1.10f, -9.0f), { 0.04f,0.55f,0.04f },
+            glm::vec3(0.20f, 0.20f, 0.20f));
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(12.5f, 0.12f, -9.0f), { 0.26f,0.08f,0.26f },
+            glm::vec3(0.20f, 0.20f, 0.20f));
+        DrawBox(VAO, shaderColor, modelLoc, colorLoc, useTexLoc, 0,
+            glm::vec3(12.51f, 0.75f, -9.0f), { 0.02f,0.40f,0.18f },
+            glm::vec3(0.95f, 0.95f, 0.95f));
 
         // ====================================================
         //  PUERTAS DEL AUDITORIO
